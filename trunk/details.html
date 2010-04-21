@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="css/main.css"/>
+  </head>
+  <body onload="top.callTabAction('view.pl')">
+    <form name="nodeForm" target="detailsMainFrame">
+      <input type="hidden" name="nodeDN" value="0">
+      <input type="hidden" name="predicate" value="create">
+      <input type="hidden" name="inheritance" value="false">
+    </form>
+    <table style="height:98%;width:100%" border="0">
+      <tr>
+        <td>
+          <a class="tab" action="view.pl" href="about:blank" onclick="top.callTabAction('view.pl');return false;">View</a>
+          <a class="tab" action="keylist.pl" href="about:blank" onclick="top.callTabAction('keylist.pl');return false;">Key list</a>
+          <a class="tab" action="extract.pl" href="about:blank" onclick="top.callTabAction('extract');return false;">Extract</a>
+          <iframe class="tabContent" name="detailsMainFrame"></iframe>
+        </td>
+      </tr>
+      <tr><td style="height:5px">&nbsp</td></tr>
+      <tr>
+        <td id="footer" style="height:75px">
+          <div class="tabMain">
+            <form name="detailsControlForm">
+              <div class="controlBar" id="view.pl">
+                Edit
+                <input type="checkbox" name="edit" value="Edit" onclick="top.editFunc(checked)"/>&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="button" name="save" value="Save" disabled="true" onclick="top.commitLDAPEntryChange()"/>
+              </div>
+              <div class="controlBar" id="keylist.pl">
+                Enable inheritence
+                <input type="checkbox" checked="true" onclick="forms.nodeForm.elements.inheritance.value=checked;forms.nodeForm.submit()"/>
+              </div>
+            </form>
+          </div>
+        </td>
+      </tr> 
+    </table>
+  </body>
+</html>
+
+
