@@ -1,0 +1,103 @@
+<html>
+<head>
+	<script type="text/javascript" src="jstree/lib/jquery.js"></script>
+	<script type="text/javascript" src="jstree/lib/jquery.cookie.js"></script>
+	<script type="text/javascript" src="jstree/lib/jquery.hotkeys.js"></script>
+	<script type="text/javascript" src="jstree/lib/jquery.metadata.js"></script>
+	<script type="text/javascript" src="jstree/lib/sarissa.js"></script>
+	<script type="text/javascript" src="jstree/jquery.tree.js"></script>
+	<script type="text/javascript" src="jstree/plugins/jquery.tree.checkbox.js"></script>
+	<script type="text/javascript" src="jstree/plugins/jquery.tree.contextmenu.js"></script>
+	<script type="text/javascript" src="jstree/plugins/jquery.tree.cookie.js"></script>
+	<script type="text/javascript" src="jstree/plugins/jquery.tree.hotkeys.js"></script>
+	<script type="text/javascript" src="jstree/plugins/jquery.tree.metadata.js"></script>
+	<script type="text/javascript" src="jstree/plugins/jquery.tree.themeroller.js"></script>
+	<script type="text/javascript" src="jstree/plugins/jquery.tree.xml_flat.js"></script>
+	<script type="text/javascript" src="jstree/plugins/jquery.tree.xml_nested.js"></script>
+	<!-- 
+    <link type="text/css" rel="stylesheet" href="syntax/shCore.css"/>
+	<link type="text/css" rel="stylesheet" href="syntax/shThemeDefault.css"/>
+	<script type="text/javascript" src="syntax/shCore.js"></script>
+	<script type="text/javascript" src="syntax/shBrushJScript.js"></script>
+	<script type="text/javascript" src="syntax/shBrushXml.js"></script>
+    -->
+</head>
+<body>
+	<script type="text/javascript" class="source">
+	$(function () { 
+		$("#xml_f").tree({
+			languages : [ "en" ],
+			data : { 
+				type : "xml_flat",
+				async : true,
+				opts : {
+					url : "/arcore/tree.pl"
+				}
+			},
+            callback : {
+                beforedata	: function(NODE,TREE_OBJ) { return { id : $(NODE).attr("id") || 0 } },
+                onselect	: function(NODE,TREE_OBJ) { 
+                                  ndForm = top.details.document.forms.nodeForm;
+                                  ndForm.action = "view.pl";
+                                  ndForm.elements.nodeDN.value=$(NODE).attr("id");
+                                  ndForm.elements.predicate.value="view";
+                                  ndForm.submit();
+                              }
+            },
+            ui : {
+                theme_name : "classic"
+            },
+            plugins : {
+                contextmenu : {
+                    items : {
+                        create : {
+                            label   : "Create",
+                            icon    : "create",
+                            visible : function  (NODE, TREE_OBJ) {
+                                if ( $(NODE).attr("class").search(/leaf/i) == -1 )
+                                    return 1;
+                                else
+                                    return 0;
+                            },
+                            action  : function (NODE, TREE_OBJ) {
+                                ndForm = top.details.document.forms.nodeForm;                                
+                                ndForm.elements.nodeDN.value=$(NODE).attr("id");
+                                ndForm.elements.predicate.value="create";
+                                ndForm.action = "edit.pl";
+                                ndForm.submit();
+                            }
+                        } ,
+                        rename : false,
+                        remove : false,
+                        edit : {
+                            label   : "Edit",
+                            icon    : "rename",
+                            action  : function (NODE, TREE_OBJ) {
+                                ndForm = top.details.document.forms.nodeForm;                                
+                                ndForm.elements.nodeDN.value=$(NODE).attr("id");
+                                ndForm.elements.predicate.value="edit";
+                                ndForm.action = "edit.pl";
+                                ndForm.submit();
+                            }
+                        },
+                        delete : {
+                            label   : "Delete",
+                            icon    : "remove",
+                            action  : function (NODE, TREE_OBJ) {
+                                ndForm = top.details.document.forms.nodeForm;
+                                ndForm.action = "update.pl";
+                                ndForm.elements.nodeDN.value=$(NODE).attr("id");
+                                ndForm.elements.predicate.value="delete";
+                                ndForm.submit();
+                                top.editFunc(true);
+                            }
+                        }
+
+                    }
+                }
+            }
+		});
+	});
+	</script>
+    <div class="demo" id="xml_f"></div>
+</html>

@@ -1,0 +1,85 @@
+a.tab, a.tab:visited {
+  background-color: #f0f0f0;
+  border: 1px solid #000000;
+  border-bottom-width: 0px;
+  padding: 2px 1em 2px 1em;
+  position: relative;
+  text-decoration: none;
+  top: -1px;
+  z-index: 100;
+}
+
+a.tab.activeTab {
+  z-index: 102;
+  background-color: #c0c0c0;
+}
+
+div.tabMain {
+  background-color: #c0c0c0;
+  border: 1px solid #000000;
+  padding: 0px;
+  position: relative;
+  z-index: 101;
+  width: 100%;
+  height: 100%;
+}
+
+div.controlBar {
+  background-color: #c0c0c0;
+  border: 0px solid #000000;
+  padding: 0px;
+  position: absolute;
+  left:0px;
+  top:0px;
+  z-index: 101;
+  width: 100%;
+  height: 100%;
+  visibility:hidden;
+}
+
+.ldapEntryEdit {
+  background-color: #c0c0c0;
+  border: 0px solid #000000;
+  padding: 5px;
+  position: absolute;
+  left:0px;
+  top:70px;
+  z-index: 101;
+  width: 100%;
+  height: 100%;
+  visibility:hidden;
+}
+
+iframe.tabContent {
+  background-color: #c0c0c0;
+  border: 1px solid #000000;
+  padding: 0px;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+a.tab:hover {
+  background-color: #e0e0e0;
+  color: #606060;
+}
+
+tr.operational input {
+  background-color: #d0d0d0;
+}
+
+tr.property  input {
+  background-color: #e0e0e0;
+}
+
+tr.container  input {
+  background-color: #e0e0e0;
+}
+
+tr.readOnly input {
+  background-color: #e0e0e0;
+}
