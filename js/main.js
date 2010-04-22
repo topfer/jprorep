@@ -26,7 +26,8 @@ function callTabAction(tabName) {
         return;
 
     var nodeForm = top.details.document.forms.nodeForm;
-    nodeForm.action = tabName;
+    nodeForm.action = tabName + ".pl";
+    nodeForm.predicate = tabName;
     nodeForm.submit();
 
     // Check all links
@@ -93,7 +94,7 @@ function selectLDAPObjType(value) {
     controlsForm = top.details.document.forms.detailsControlForm;
 
     if ( top.details.document.forms.nodeForm.elements.predicate.value === "view" ) {
-        alert("VL1 : " + top.details.document.forms.nodeForm.elements.predicate.value);
+        //alert("VL1 : " + top.details.document.forms.nodeForm.elements.predicate.value);
         controlsForm.elements.edit.removeAttribute("checked");
         controlsForm.elements.save.setAttribute("disabled", "true");
     } else {
