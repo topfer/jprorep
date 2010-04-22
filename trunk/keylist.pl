@@ -20,11 +20,6 @@ if ( ! defined $currentBase || $currentBase eq "" || $currentBase eq "0" ) {
     $currentBase = $rootDN;
 }
 
-#$operationalAttrs = ['entryDN','creatorsName','createTimestamp','modifiersName','modifyTimestamp'];
-#associative array for the memberOf implementation
-# undef %isOperational;
-# for (@$operationalAttrs) { $isOperational{$_} = 1; }
-
 @allAttributes = (@$operationalAttrs, '*');
 
 #$msg = $ldap->search(base => $currentBase, scope => one, filter => "(objectclass=propertyObject)", attrs => '*');

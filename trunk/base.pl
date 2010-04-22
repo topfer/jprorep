@@ -24,11 +24,7 @@ sub getLDAPEntry {
 
 sub generateInputLines {
 
-    my $ldapEntry = $_[0];
-    my $elemArray = $_[1];
-    my $elemType = $_[2];
-    my $loadValue = $_[3];
-    my $readOnly = $_[4];
+    my ($ldapEntry, $elemArray, $elemType, $loadValue, $readOnly) = @_;
 
     my ($trStyle, $inputStyle);
 
@@ -56,12 +52,7 @@ sub generateInputLines {
 
 sub generateInputForm {
 
-    my $ldapEntry = $_[0];
-    my $attributesArray = $_[1];
-    my $classType = $_[2];
-    my $loadValue = $_[3];
-    my $readOnly = $_[4];
-    my $predicate = $_[5];
+    my ($ldapEntry, $attributesArray, $classType, $loadValue, $readOnly, $predicate) = @_;
 
     print "<div class='ldapEntryEdit' id='".$classType."'>";
     print "<table border='1' width='100%'>\n";
@@ -107,8 +98,6 @@ sub generateCreateForm {
     &generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 0, 0, "create");
     &generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 0, 0, "create");
 
-    #&generateInputLines($operationalAttrs, "operational", 1, 1);
-
     print "</form>\n";
 };
 
@@ -136,7 +125,8 @@ sub generateViewForm {
         &generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 1, "view");
     }
 
-    &generateInputLines($ldapEntry, $operationalAttrs, "operational", 1, 1);
+    print "</form>\n";
+    #&generateInputLines($ldapEntry, $operationalAttrs, "operational", 1, 1);
 }
 
 1;
