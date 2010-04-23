@@ -1,8 +1,11 @@
 #!/usr/bin/perl -w
 use Net::LDAP;
+use URI::Escape;
 use CGI qw(:standard escapeHTML);
 
 require "base.pl";
+
+my $actualDN;
 
 #open(CGILOG, ">> /tmp/cgi.log");
 
@@ -33,16 +36,18 @@ $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 $result = $ldap->bind("cn=Manager,dc=arcore,dc=amadeus,dc=com", password => "secret");
 die $result->error(  ) if $result->code(  );
 
-$oneString = "cn=".param("cn").",".param("nodeDN");
-
 if ( param("predicate") eq "create") {
 
-    $result = $ldap->add($oneString,
+    $actualDN = "cn=".param("cn").",".param("nodeDN");
+
+    $result = $ldap->add($actualDN,
                      attr    => [ 
                                   'description' => param("description"),
                                   'objectclass' => param("objectClass") 
                    ] );
 } elsif ( param("predicate") eq "update") {
+
+    $actualDN = param("nodeDN");
     
     if ( param("objectClass") eq "propertyObject") {
         $translationHash = &createHashfromCGIParams($propertyAttrs);
@@ -59,5 +64,6 @@ die $result->error(  ) if $result->code(  );
 
 $ldap->unbind;
 
-print "Status: 302 Moved\nLocation:"."view.pl?nodeDN=".$oneString."\n\n";
+#print CGILOG "Status: 302 Moved\nLocation:"."details.pl?nodeDN=".uri_escape($actualDN."&tab=details&predicate=view")."\n\n";
+print "Status: 302 Moved\nLocation:"."details.pl?nodeDN=".uri_escape($actualDN)."&tab=details&predicate=view"."\n\n";
 

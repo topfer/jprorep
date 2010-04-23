@@ -28,6 +28,7 @@ function callTabAction(tabName) {
     var nodeForm = top.details.document.forms.nodeForm;
     nodeForm.action = tabName + ".pl";
     nodeForm.predicate = tabName;
+    nodeForm.tab = tabName;
     nodeForm.submit();
 
     // Check all links
@@ -94,7 +95,6 @@ function selectLDAPObjType(value) {
     controlsForm = top.details.document.forms.detailsControlForm;
 
     if ( top.details.document.forms.nodeForm.elements.predicate.value === "view" ) {
-        //alert("VL1 : " + top.details.document.forms.nodeForm.elements.predicate.value);
         controlsForm.elements.edit.removeAttribute("checked");
         controlsForm.elements.save.setAttribute("disabled", "true");
     } else {
@@ -120,4 +120,42 @@ function commitLDAPEntryChange() {
     //debugForm(ldapEntryForm);
 
     ldapEntryForm.submit();
+}
+
+function blockOnTab(tabName) {
+
+    // Exit if no frame name was given.
+    if (tabName == null)
+        return;
+
+    var nodeForm = top.details.document.forms.nodeForm;
+    nodeForm.elements.tab.value = nodeForm.elements.predicate.value = tabName;
+    nodeForm.action = tabName + ".pl";
+    nodeForm.submit();
+
+    // Check all links
+    var elList = top.details.document.getElementsByTagName("a");
+
+    for (i = 0; i < elList.length; i++)
+
+        // Check if the link's target matches the frame being loaded
+        if (elList[i].getAttribute('action') == tabName) {
+            elList[i].className += " activeTab";
+            elList[i].blur();
+        }
+        else
+            removeName(elList[i], "activeTab");
+
+    // Check all control bars
+    elList = top.details.document.getElementsByClassName("controlBar");
+
+    for (i = 0; i < elList.length; i++)
+
+        // Check if the link's target matches the frame being loaded
+        if (elList[i].getAttribute('id') == tabName)
+            elList[i].style.visibility = "visible";
+        else
+            elList[i].style.visibility = "hidden";
+
+
 }

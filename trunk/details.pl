@@ -10,9 +10,13 @@ print "<html><head><link type='text/css' rel='stylesheet' href='css/main.css'/><
 print "<body onload='top.selectLDAPObjType()'><table border='1' width='100%'>";
 print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th></tr>";
 
-if ( param("predicate") eq "create" ) {
+my $actualPredicate = param("predicate");
+
+if ( $actualPredicate eq "view" ) {
+    &generateViewForm(param("nodeDN"));
+} elsif ( $actualPredicate eq "create" ) {
     &generateCreateForm(param("nodeDN"));
-} else {
+} elsif ( $actualPredicate eq "edit" ) {
     &generateEditForm(param("nodeDN"));
 }
 
