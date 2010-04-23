@@ -30,7 +30,7 @@ print "Content-type: text/html\r\n\r\n";
 #     $msg->pop_entry()->dump();
 # }
 
-print "<html><body>\n";
+print "<html><body onload='top.operationFrameLoaded()'>\n";
 print "<table border='1' width='100%'>";
 print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th></tr>";
 
@@ -42,7 +42,7 @@ do {
     my $myLevelKeys = &getContainerLevelKeys(substr($currentBase, $nextNodeStart).",".$rootDN);
 
     foreach $entry ($myLevelKeys->entries) {
-        print "<tr><td>".$entry->get_value("keyName")."</td><td>".$entry->get_value("keyValue")."</td></tr>";
+        print "<tr><td>".$entry->get_value("cn")."</td><td>".$entry->get_value("keyValue")."</td></tr>";
     }
 
     #print $nextNodeStart."__".substr($currentBase, $nextNodeStart)."\n";

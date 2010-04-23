@@ -38,8 +38,8 @@
                 beforedata	: function(NODE,TREE_OBJ) { return { id : $(NODE).attr("id") || 0 } },
                 onselect	: function(NODE,TREE_OBJ) { 
                                   ndForm = top.details.document.forms.nodeForm;
-                                  ndForm.action = "view.pl";
                                   ndForm.elements.nodeDN.value=$(NODE).attr("id");
+                                  ndForm.action = ndForm.elements.tab.value + ".pl"; 
                                   ndForm.elements.predicate.value="view";
                                   ndForm.submit();
                               }
@@ -60,10 +60,10 @@
                                     return 0;
                             },
                             action  : function (NODE, TREE_OBJ) {
-                                ndForm = top.details.document.forms.nodeForm;                                
+                                ndForm = top.details.document.forms.nodeForm;
+                                ndForm.action = "details.pl";
                                 ndForm.elements.nodeDN.value=$(NODE).attr("id");
                                 ndForm.elements.predicate.value="create";
-                                ndForm.action = "edit.pl";
                                 ndForm.submit();
                             }
                         } ,
@@ -73,10 +73,10 @@
                             label   : "Edit",
                             icon    : "rename",
                             action  : function (NODE, TREE_OBJ) {
-                                ndForm = top.details.document.forms.nodeForm;                                
+                                ndForm = top.details.document.forms.nodeForm;
+                                ndForm.action = "details.pl";
                                 ndForm.elements.nodeDN.value=$(NODE).attr("id");
                                 ndForm.elements.predicate.value="edit";
-                                ndForm.action = "edit.pl";
                                 ndForm.submit();
                             }
                         },
@@ -89,7 +89,7 @@
                                 ndForm.elements.nodeDN.value=$(NODE).attr("id");
                                 ndForm.elements.predicate.value="delete";
                                 ndForm.submit();
-                                top.editFunc(true);
+                                //top.editFunc(true);
                             }
                         }
 
