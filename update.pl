@@ -9,27 +9,43 @@ my $actualDN;
 
 #open(CGILOG, ">> /tmp/cgi.log");
 
-sub createHashfromCGIParams {
-     my $attributesArray = $_[0];
+sub createListfromCGIParams {
+     my (@replaceList, $srcListRef);
 
-     my %replaceHash; 
+    if ( param("objectClass") eq "propertyObject") {
+        $srcListRef = $propertyAttrs;
+    } elsif ( param("objectClass") eq "propertyContainer") {
+        $srcListRef = $containerAttrs;
+    }     
 
-     foreach $attr (@$attributesArray) {
+     foreach $attr (@$srcListRef) {
          if ( length param($attr) > 0) {
-             $replaceHash{$attr} = param($attr);
+             push(@replaceList, $attr ,param($attr));
          }
      }
 
-     return \%replaceHash;
+     return \@replaceList;
 }
 
-sub LDAPmodifyUsingHash {
+sub LDAPcreateUsingList {
    my ($ldap, $dn, $whatToChange ) = @_;
-   my $result = $ldap->modify ( $dn,
-                                replace => { %$whatToChange }
+   my $result = $ldap->add ( $dn,
+                                changes => [
+                                  replace => [ @$whatToChange ]
+                                ]
                               );
    return $result;
- }
+}
+
+sub LDAPmodifyUsingList {
+   my ($ldap, $dn, $whatToChange ) = @_;
+   my $result = $ldap->modify ( $dn,
+                                changes => [
+                                  replace => [ @$whatToChange ]
+                                ]
+                              );
+   return $result;
+}
 
 $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
@@ -40,22 +56,19 @@ if ( param("predicate") eq "create") {
 
     $actualDN = "cn=".param("cn").",".param("nodeDN");
 
-    $result = $ldap->add($actualDN,
-                     attr    => [ 
-                                  'description' => param("description"),
-                                  'objectclass' => param("objectClass") 
-                   ] );
+    $translationList = &createListfromCGIParams();
+    push(@$translationList, "objectclass", param("objectClass"));
+
+    $result = $ldap->add($actualDN, attr => $translationList);
+
 } elsif ( param("predicate") eq "update") {
 
     $actualDN = param("nodeDN");
+        
+    $translationList = &createListfromCGIParams();
+
+    $result = LDAPmodifyUsingList( $ldap, param("nodeDN"), $translationList );
     
-    if ( param("objectClass") eq "propertyObject") {
-        $translationHash = &createHashfromCGIParams($propertyAttrs);
-    } elsif ( param("objectClass") eq "propertyContainer") {
-        $translationHash = &createHashfromCGIParams($containerAttrs);
-    }
-    
-    $result = LDAPmodifyUsingHash( $ldap, param("nodeDN"), $translationHash );
 } elsif ( param("predicate") eq "delete") {
     $result = $ldap->delete(param("nodeDN"));
 }

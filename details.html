@@ -2,7 +2,7 @@
   <head>
     <link type="text/css" rel="stylesheet" href="css/main.css"/>
   </head>
-  <body onload="top.callTabAction('view')">
+  <body onload="top.blockOnTab('details')">
     <form name="nodeForm" target="detailsMainFrame">
       <input type="hidden" name="nodeDN" value="0">
       <input type="hidden" name="tab" value="details">
@@ -16,11 +16,6 @@
           <a class="tab" action="details" href="about:blank" onclick="top.blockOnTab(getAttribute('action'));return false;">View</a>
           <a class="tab" action="keylist" href="about:blank" onclick="top.blockOnTab(getAttribute('action'));return false;">Key list</a>
           <a class="tab" action="extract" href="about:blank" onclick="top.blockOnTab(getAttribute('action'));return false;">Extract</a>         
-          <!--
-          <a class="tab" action="details" href="about:blank" onclick="top.callTabAction(getAttribute('action'));return false;">View</a>
-          <a class="tab" action="keylist" href="about:blank" onclick="top.callTabAction(getAttribute('action'));return false;">Key list</a>
-          <a class="tab" action="extract" href="about:blank" onclick="top.callTabAction(getAttribute('action'));return false;">Extract</a>
-          -->
           <iframe class="tabContent" name="detailsMainFrame"></iframe>
         </td>
       </tr>
