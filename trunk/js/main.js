@@ -9,51 +9,9 @@ function debugForm(actForm) {
 }
 
 function editFunc(actValue) {
-    //alert(actValue);
-    ldapEntryTypeForm = top.details.detailsMainFrame.document.forms.classTypeSelectionForm;
-    ldapEntryTypeValue = ldapEntryTypeForm.elements["objectClass"].value;
-
-    ldapEntryForm = top.details.detailsMainFrame.document.forms[ldapEntryTypeValue];
-    ldapEntryForm.action = "edit.pl";
-    ldapEntryForm.submit();
-    //alert(ldapEntryForm.elements["nodeDN"].value);
-}
-
-function callTabAction(tabName) {
-
-    // Exit if no frame name was given.
-    if (tabName == null)
-        return;
-
     var nodeForm = top.details.document.forms.nodeForm;
-    nodeForm.action = tabName + ".pl";
-    nodeForm.predicate = tabName;
-    nodeForm.tab = tabName;
+    nodeForm.elements.predicate.value="edit";
     nodeForm.submit();
-
-    // Check all links
-    var elList = top.details.document.getElementsByTagName("a");
-
-    for (i = 0; i < elList.length; i++)
-
-        // Check if the link's target matches the frame being loaded
-        if (elList[i].getAttribute('action') == tabName) {
-            elList[i].className += " activeTab";
-            elList[i].blur();
-        }
-        else
-            removeName(elList[i], "activeTab");
-
-    // Check all control bars
-    elList = top.details.document.getElementsByClassName("controlBar");
-
-    for (i = 0; i < elList.length; i++)
-
-        // Check if the link's target matches the frame being loaded
-        if (elList[i].getAttribute('id') == tabName)
-            elList[i].style.visibility = "visible";
-        else
-            elList[i].style.visibility = "hidden";
 }
 
 function removeName(el, name) {
