@@ -7,7 +7,7 @@
       <input type="hidden" name="nodeDN" value="0">
       <input type="hidden" name="tab" value="details">
       <input type="hidden" name="predicate" value="view">
-      <input type="hidden" name="defaultPredicate" value="view">
+      <input type="hidden" name="updateJSTree" value="">
       <input type="hidden" name="inheritance" value="false">
     </form>
     <table style="height:98%;width:100%" border="0">
@@ -32,6 +32,7 @@
               <div class="controlBar" id="keylist">
                 Enable inheritence
                 <input type="checkbox" checked="true" onclick="forms.nodeForm.elements.inheritance.value=checked;forms.nodeForm.submit()"/>
+                <input type="button" name="export" value="Export" onclick="top.commitLDAPEntryChange()"/>
               </div>
             </form>
           </div>

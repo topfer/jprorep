@@ -1,3 +1,7 @@
+var currentJSTree;
+var currentJSTreeNode;
+var currentJSTreeAction;
+
 function debugForm(actForm) {
     var str = "action" + " : " + actForm.action + "\n";
 
@@ -33,24 +37,24 @@ function resetControls() {
     detailsControlForm.elements.save.disabled= 'true';
 }
 
-function selectLDAPObjType(value) {
+function selectLDAPObjType(objClassValue) {
 
     //debugForm(top.details.document.forms.nodeForm);
 
-    if ( ! value ) {
-        value = top.details.detailsMainFrame.document.forms.classTypeSelectionForm.elements.objectClass.value;
+    if ( ! objClassValue ) {
+        objClassValue = top.details.detailsMainFrame.document.forms.classTypeSelectionForm.elements.objectClass.value;
     }
 
-    completeList = top.details.detailsMainFrame.document.getElementsByClassName("ldapEntryEdit");
+    var completeList = top.details.detailsMainFrame.document.getElementsByClassName("ldapEntryEdit");
     for (i = 0; i < completeList.length; i++)
-        if ( completeList[i].id == value ) {
+        if ( completeList[i].id == objClassValue ) {
             completeList[i].style.visibility = "visible";
         }
         else {
             completeList[i].style.visibility = "hidden";
         }
 
-    controlsForm = top.details.document.forms.detailsControlForm;
+    var controlsForm = top.details.document.forms.detailsControlForm;
 
     if ( top.details.document.forms.nodeForm.elements.predicate.value === "view" ) {
         controlsForm.elements.edit.removeAttribute("checked");
@@ -58,6 +62,20 @@ function selectLDAPObjType(value) {
     } else {
         controlsForm.elements.edit.setAttribute("checked", "true");
         controlsForm.elements.save.removeAttribute("disabled");       
+    }
+
+    var updateJSTreeAction = top.details.document.forms.nodeForm.elements.updateJSTree;
+    if ( updateJSTreeAction.value != "" ) {
+        var nodeTitle = top.details.detailsMainFrame.document.forms[objClassValue].elements.cn.value;
+        var nodeID = top.details.detailsMainFrame.document.forms[objClassValue].elements.nodeDN.value;
+        if ( updateJSTreeAction.value === "add") {
+            if ( objClassValue === "propertyObject") { 
+                currentJSTree.create({ attributes : { 'class' : 'last leaf', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle, icon : 'icons/key-icon.png'} }, currentJSTreeNode, "inside");
+            } else {
+                currentJSTree.create({ attributes : { 'class' : 'last closed', 'state' : 'closed', 'id' : nodeID }, data: { title : nodeTitle } }, currentJSTreeNode, "inside");
+            }
+        }
+        updateJSTreeAction.value = "";
     }
 }
 

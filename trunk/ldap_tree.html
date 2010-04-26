@@ -6,6 +6,9 @@
 	<script type="text/javascript" src="jstree/lib/jquery.metadata.js"></script>
 	<script type="text/javascript" src="jstree/lib/sarissa.js"></script>
 	<script type="text/javascript" src="jstree/jquery.tree.js"></script>
+    <script type="text/javascript" src="jstree/plugins/jquery.tree.contextmenu.js"></script>
+    <script type="text/javascript" src="jstree/plugins/jquery.tree.xml_flat.js"></script>
+    <!--
 	<script type="text/javascript" src="jstree/plugins/jquery.tree.checkbox.js"></script>
 	<script type="text/javascript" src="jstree/plugins/jquery.tree.contextmenu.js"></script>
 	<script type="text/javascript" src="jstree/plugins/jquery.tree.cookie.js"></script>
@@ -14,6 +17,7 @@
 	<script type="text/javascript" src="jstree/plugins/jquery.tree.themeroller.js"></script>
 	<script type="text/javascript" src="jstree/plugins/jquery.tree.xml_flat.js"></script>
 	<script type="text/javascript" src="jstree/plugins/jquery.tree.xml_nested.js"></script>
+    -->
 	<!-- 
     <link type="text/css" rel="stylesheet" href="syntax/shCore.css"/>
 	<link type="text/css" rel="stylesheet" href="syntax/shThemeDefault.css"/>
@@ -26,7 +30,7 @@
 	<script type="text/javascript" class="source">
 	$(function () { 
 		$("#xml_f").tree({
-			languages : [ "en" ],
+			//languages : [ "en" ],
 			data : { 
 				type : "xml_flat",
 				async : true,
@@ -65,6 +69,8 @@
                                 ndForm.elements.nodeDN.value=$(NODE).attr("id");
                                 ndForm.elements.predicate.value="create";
                                 ndForm.submit();
+                                top.currentJSTree = TREE_OBJ;
+                                top.currentJSTreeNode = NODE[0];                                
                             }
                         } ,
                         rename : false,
@@ -89,7 +95,7 @@
                                 ndForm.elements.nodeDN.value=$(NODE).attr("id");
                                 ndForm.elements.predicate.value="delete";
                                 ndForm.submit();
-                                //top.editFunc(true);
+                                $.each(NODE, function () { TREE_OBJ.remove(this); });
                             }
                         }
 
