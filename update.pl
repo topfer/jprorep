@@ -5,7 +5,7 @@ use CGI qw(:standard escapeHTML);
 
 require "base.pl";
 
-my $actualDN;
+my $actualDN, $updateJSTree;
 
 #open(CGILOG, ">> /tmp/cgi.log");
 
@@ -59,6 +59,7 @@ if ( param("predicate") eq "create") {
     $translationList = &createListfromCGIParams();
     push(@$translationList, "objectclass", param("objectClass"));
 
+    $updateJSTree = "&updateJSTree=add";
     $result = $ldap->add($actualDN, attr => $translationList);
 
 } elsif ( param("predicate") eq "update") {
@@ -67,9 +68,11 @@ if ( param("predicate") eq "create") {
         
     $translationList = &createListfromCGIParams();
 
+    $updateJSTree = "&updateJSTree=modify";
     $result = LDAPmodifyUsingList( $ldap, param("nodeDN"), $translationList );
     
 } elsif ( param("predicate") eq "delete") {
+    $updateJSTree = "&updateJSTree=delete";
     $result = $ldap->delete(param("nodeDN"));
 }
 
@@ -78,5 +81,5 @@ die $result->error(  ) if $result->code(  );
 $ldap->unbind;
 
 #print CGILOG "Status: 302 Moved\nLocation:"."details.pl?nodeDN=".uri_escape($actualDN."&tab=details&predicate=view")."\n\n";
-print "Status: 302 Moved\nLocation:"."details.pl?nodeDN=".uri_escape($actualDN)."&tab=details&predicate=view"."\n\n";
+print "Status: 302 Moved\nLocation:"."details.pl?nodeDN=".uri_escape($actualDN)."&tab=details&predicate=view".$updateJSTree."\n\n";
 

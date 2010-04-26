@@ -2,7 +2,7 @@
 use Net::LDAP;
 use CGI qw(:standard escapeHTML);
 
-require "base.pl";
+#require "base.pl";
 
 #open(CGILOG, ">> /tmp/cgi.log");
 
@@ -20,15 +20,9 @@ if ( ! defined $currentBase || $currentBase eq "" || $currentBase eq "0" ) {
     $currentBase = $rootDN;
 }
 
-@allAttributes = (@$operationalAttrs, '*');
-
-#$msg = $ldap->search(base => $currentBase, scope => one, filter => "(objectclass=propertyObject)", attrs => '*');
 $msg = $ldap->search(base => $currentBase, scope => one, filter => "(|(objectclass=propertyObject)(objectclass=alias))", attrs => '*');
 
 print "Content-type: text/html\r\n\r\n";
-# foreach $entry ($msg->entries) {
-#     $msg->pop_entry()->dump();
-# }
 
 print "<html><body onload='top.operationFrameLoaded()'>\n";
 print "<table border='1' width='100%'>";
@@ -45,7 +39,6 @@ do {
         print "<tr><td>".$entry->get_value("cn")."</td><td>".$entry->get_value("keyValue")."</td></tr>";
     }
 
-    #print $nextNodeStart."__".substr($currentBase, $nextNodeStart)."\n";
     $nextNodeStart = index($currentBase, ',', $nextNodeStart + 1) + 1;
     $counter--;
 } until  ( $nextNodeStart == 0  || $counter < 0);
