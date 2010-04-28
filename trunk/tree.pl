@@ -23,9 +23,9 @@ if ( $msg->count(  ) > 0 ) {
 
     foreach $entry ( $msg->all_entries(  ) ) {
         if ( $entry->get_value("objectClass") eq "propertyContainer" ) {
-            print "<item id='".$entry->dn(  )."' state='closed'><content><name>".$entry->get_value("cn")."</name></content></item>";
+            print "<item id='".$entry->dn(  )."' class='container' state='closed'><content><name>".$entry->get_value("cn")."</name></content></item>";
         } else {
-            print "<item id='".$entry->dn(  )."' state='leaf'><content><name icon='icons/key-icon.png'>".$entry->get_value("cn")."</name></content></item>";
+            print "<item id='".$entry->dn(  )."' class='object' state='leaf'><content><name icon='icons/key-icon.png'>".$entry->get_value("cn")."</name></content></item>";
         }
     }
 }

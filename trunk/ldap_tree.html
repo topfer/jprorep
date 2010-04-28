@@ -58,7 +58,7 @@
                             label   : "Create",
                             icon    : "create",
                             visible : function  (NODE, TREE_OBJ) {
-                                if ( $(NODE).attr("class").search(/leaf/i) == -1 )
+                                if ( $(NODE).attr("class").search(/object/i) == -1 )
                                     return 1;
                                 else
                                     return 0;
@@ -70,7 +70,7 @@
                                 ndForm.elements.predicate.value="create";
                                 ndForm.submit();
                                 top.currentJSTree = TREE_OBJ;
-                                top.currentJSTreeNode = NODE[0];                                
+                                top.currentJSTreeNode = NODE;
                             }
                         } ,
                         rename : false,
