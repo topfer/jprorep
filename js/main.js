@@ -2,6 +2,16 @@ var currentJSTree;
 var currentJSTreeNode;
 var currentJSTreeAction;
 
+function debugObject(obj) {
+    var str = "";
+
+    for(i=0;i<obj.length;i++) {
+        str += obj[i].name + " : " + obj[i].value + "\n"; 
+    }
+    
+    alert(str);
+}
+
 function debugForm(actForm) {
     var str = "action" + " : " + actForm.action + "\n";
 
@@ -70,9 +80,13 @@ function selectLDAPObjType(objClassValue) {
         var nodeID = top.details.detailsMainFrame.document.forms[objClassValue].elements.nodeDN.value;
         if ( updateJSTreeAction.value === "add") {
             if ( objClassValue === "propertyObject") { 
-                currentJSTree.create({ attributes : { 'class' : 'last leaf', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle, icon : 'icons/key-icon.png'} }, currentJSTreeNode, "inside");
+                currentJSTree.create({ attributes : { 'class' : 'leaf', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle, icon : 'icons/key-icon.png'} }, currentJSTreeNode, "inside");
             } else {
-                currentJSTree.create({ attributes : { 'class' : 'last closed', 'state' : 'closed', 'id' : nodeID }, data: { title : nodeTitle } }, currentJSTreeNode, "inside");
+                //debugObject(currentJSTreeNode[0]);
+                //currentJSTree.create(false, currentJSTree.get_node(currentJSTreeNode));
+                currentJSTree.create({ attributes : { 'class' : 'closed', 'state' : 'closed', 'id' : nodeID }, data: { title : nodeTitle } }, currentJSTreeNode, "inside");                
+                currentJSTree.get_node(currentJSTreeNode).removeClass('leaf');
+                //currentJSTree.open_branch(currentJSTreeNode);
             }
         }
         updateJSTreeAction.value = "";
