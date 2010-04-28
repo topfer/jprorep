@@ -85,10 +85,12 @@ function selectLDAPObjType(objClassValue) {
                 //debugObject(currentJSTreeNode[0]);
                 //currentJSTree.create(false, currentJSTree.get_node(currentJSTreeNode));
                 currentJSTree.create({ attributes : { 'class' : 'closed', 'state' : 'closed', 'id' : nodeID }, data: { title : nodeTitle } }, currentJSTreeNode, "inside");                
-                currentJSTree.get_node(currentJSTreeNode).removeClass('leaf');
+                
                 //currentJSTree.open_branch(currentJSTreeNode);
             }
         }
+        currentJSTree.get_node(currentJSTreeNode).removeClass('leaf');
+
         updateJSTreeAction.value = "";
     }
 }

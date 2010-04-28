@@ -6,42 +6,56 @@ use CGI qw(:standard escapeHTML);
 
 #open(CGILOG, ">> /tmp/cgi.log");
 
-sub getContainerLevelKeys {
-    my $keyList = $ldap->search(base => $_[0], scope => one, filter => "(|(objectclass=propertyObject)(objectclass=alias))", attrs => '*');
-    return $keyList;
-}
+my $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
-$ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
-
-$currentBase = param("nodeDN");
-$rootDN = "dc=arcore,dc=amadeus,dc=com";
+my $currentBase = param("nodeDN");
+my $rootDN = "dc=arcore,dc=amadeus,dc=com";
 
 if ( ! defined $currentBase || $currentBase eq "" || $currentBase eq "0" ) {
     $currentBase = $rootDN;
 }
 
-$msg = $ldap->search(base => $currentBase, scope => one, filter => "(|(objectclass=propertyObject)(objectclass=alias))", attrs => '*');
-
-print "Content-type: text/html\r\n\r\n";
-
-print "<html><body onload='top.operationFrameLoaded()'>\n";
-print "<table border='1' width='100%'>";
-print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th></tr>";
+my $msg = $ldap->search(base => $currentBase, scope => one, filter => "(|(objectclass=propertyObject)(objectclass=alias))", attrs => '*');
 
 $currentBase = substr($currentBase,0,rindex($currentBase, $rootDN) - 1);
 my $counter = 10;
 my $nextNodeStart = 0;
 
-do {
-    my $myLevelKeys = &getContainerLevelKeys(substr($currentBase, $nextNodeStart).",".$rootDN);
+sub getContainerLevelKeys {
+    my $keyList = $ldap->search(base => $_[0], scope => one, filter => "(|(objectclass=propertyObject)(objectclass=alias))", attrs => '*');
+    return $keyList;
+}
 
-    foreach $entry ($myLevelKeys->entries) {
-        print "<tr><td>".$entry->get_value("cn")."</td><td>".$entry->get_value("keyValue")."</td></tr>";
-    }
+sub generateInheritedKeys {
 
-    $nextNodeStart = index($currentBase, ',', $nextNodeStart + 1) + 1;
-    $counter--;
-} until  ( $nextNodeStart == 0  || $counter < 0);
+    $prefix = $_[0];
+    $delimiter = $_[1];
+    $postfix = $_[2];
 
-print "</table></body></html>\n";
+    do {
+        my $myLevelKeys = &getContainerLevelKeys(substr($currentBase, $nextNodeStart).",".$rootDN);
+
+        foreach $entry ($myLevelKeys->entries) {
+            print $prefix.$entry->get_value("cn").$delimiter.$entry->get_value("keyValue").$postfix;
+        }
+
+        $nextNodeStart = index($currentBase, ',', $nextNodeStart + 1) + 1;
+        $counter--;
+    } until  ( $nextNodeStart == 0  || $counter < 0);
+}
+
+if ( param("predicate") eq "export" ) {
+    print "Content-Type:application/x-download\r\n\r\n";  
+    #print "Content-Disposition:attachment;filename=toto.txt\r\n\r\n";  
+    &generateInheritedKeys("","=","\n");
+} else { 
+    print "Content-type: text/html\r\n\r\n";
+    print "<html><body onload='top.operationFrameLoaded()'>\n";
+    print "<table border='1' width='100%'>";
+    print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th></tr>";
+
+    &generateInheritedKeys("<tr><td>","</td><td>","</td></tr>");
+
+    print "</table></body></html>\n";
+}
 
