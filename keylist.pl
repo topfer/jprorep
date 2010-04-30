@@ -4,7 +4,7 @@ use CGI qw(:standard escapeHTML);
 
 #require "base.pl";
 
-open(CGILOG, ">> /tmp/cgi.log");
+#open(CGILOG, ">> /tmp/cgi.log");
 
 my $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
@@ -68,7 +68,7 @@ if ( param("predicate") eq "export" ) {
         #print "Content-Disposition:attachment;filename=toto.txt\r\n\r\n";  
         &generateInheritedKeys("","=","\n");
     } elsif ( param("exportType") eq "html" ) { 
-        print CGILOG "exportType : html\n";
+        #print CGILOG "exportType : html\n";
         print "Content-type: text/html\r\n\r\n";
         print "<html><body>\n";
         print "<table border='1' width='100%'>";

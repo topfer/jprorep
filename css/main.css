@@ -37,7 +37,7 @@ div.controlBar {
   visibility:hidden;
 }
 
-.ldapEntryEdit {
+div.ldapEntryEdit {
   background-color: #c0c0c0;
   border: 0px solid #000000;
   padding: 5px;
@@ -45,8 +45,8 @@ div.controlBar {
   left:0px;
   top:70px;
   z-index: 101;
-  width: 100%;
-  height: 100%;
+  width: 98%;
+  height: 200px;
   visibility:hidden;
 }
 
