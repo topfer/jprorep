@@ -2,7 +2,7 @@
   <head>
     <link type="text/css" rel="stylesheet" href="css/main.css"/>
   </head>
-  <body onload="top.blockOnTab('details')">
+  <body onload="top.callTab('details')">
     <form name="nodeForm" target="detailsMainFrame">
       <input type="hidden" name="nodeDN" value="0">
       <input type="hidden" name="tab" value="details">
@@ -10,12 +10,22 @@
       <input type="hidden" name="updateJSTree" value="">
       <input type="hidden" name="inheritance" value="false">
     </form>
+    <form name="extractForm" target="detailsMainFrame">
+      <input type="hidden" name="nodeDN" value="0">
+      <input type="hidden" name="tab">
+      <input type="hidden" name="predicate">
+      <input type="hidden" name="includeContainerComment" value="1">
+      <input type="hidden" name="includePropertyComment" value="1">
+      <input type="hidden" name="dereferenceLinks" value="1">
+      <input type="hidden" name="prefixKeys" value="1">
+      <input type="hidden" name="prefixKeysSeparator" value=".">
+    </form>
     <table style="height:98%;width:100%" border="0">
       <tr>
         <td>
-          <a class="tab" action="details" href="about:blank" onclick="top.blockOnTab(getAttribute('action'));return false;">View</a>
-          <a class="tab" action="keylist" href="about:blank" onclick="top.blockOnTab(getAttribute('action'));return false;">Key list</a>
-          <a class="tab" action="extract" href="about:blank" onclick="top.blockOnTab(getAttribute('action'));return false;">Extract</a>         
+          <a class="tab" action="details" href="about:blank" onclick="top.callTab(getAttribute('action'));return false;">View</a>
+          <a class="tab" action="keylist" href="about:blank" onclick="top.callTab(getAttribute('action'));return false;">Key list</a>
+          <a class="tab" action="export" href="exp_settings.html" target="detailsMainFrame" onclick="top.activateTab(getAttribute('action'));">Export settings</a>
           <iframe class="tabContent" name="detailsMainFrame"></iframe>
         </td>
       </tr>
@@ -32,7 +42,7 @@
               <div class="controlBar" id="keylist">
                 Enable inheritence
                 <input type="checkbox" checked="true" readonly="true" onclick="forms.nodeForm.elements.inheritance.value=checked;forms.nodeForm.submit()"/>
-                <input type="button" name="export" value="Export" onclick="var nodeForm = top.details.document.forms.nodeForm;nodeForm.elements.tab.value = 'keylist';nodeForm.elements.predicate.value = 'export';nodeForm.action = 'keylist.pl';nodeForm.submit();"/>
+                <input type="button" name="export" value="Export" onclick="top.exportRequest()"/>
               </div>
             </form>
           </div>

@@ -4,12 +4,13 @@ use CGI qw(:standard escapeHTML);
 
 #require "base.pl";
 
-#open(CGILOG, ">> /tmp/cgi.log");
+open(CGILOG, ">> /tmp/cgi.log");
 
 my $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
 my $currentBase = param("nodeDN");
 my $rootDN = "dc=arcore,dc=amadeus,dc=com";
+my $depth = 0;
 
 if ( ! defined $currentBase || $currentBase eq "" || $currentBase eq "0" ) {
     $currentBase = $rootDN;
@@ -32,11 +33,28 @@ sub generateInheritedKeys {
     $delimiter = $_[1];
     $postfix = $_[2];
 
+    my ($keyName, $keyValue);
+
     do {
-        my $myLevelKeys = &getContainerLevelKeys(substr($currentBase, $nextNodeStart).",".$rootDN);
+        my $tempoStr = substr($currentBase, $nextNodeStart);
+        my $keyPrefixKey;        
+
+        if ( param("prefixKeys") == 1 ) {
+            my $t1 = $tempoStr;
+            $t1 =~ s/,cn=/./g;            
+            my $t2 = substr($t1,3);
+            my @keyPrefixArrRev = reverse split('\.', $t2);
+
+            $" = "\.";
+            $keyName = join(".",@keyPrefixArrRev);
+            $keyName = $keyName.".";
+        }
+
+        my $myLevelKeys = &getContainerLevelKeys($tempoStr.",".$rootDN);
 
         foreach $entry ($myLevelKeys->entries) {
-            print $prefix.$entry->get_value("cn").$delimiter.$entry->get_value("keyValue").$postfix;
+            $keyName = $keyName.$entry->get_value("cn");
+            print $prefix.$keyName.$delimiter.$entry->get_value("keyValue").$postfix;
         }
 
         $nextNodeStart = index($currentBase, ',', $nextNodeStart + 1) + 1;
@@ -50,7 +68,7 @@ if ( param("predicate") eq "export" ) {
     &generateInheritedKeys("","=","\n");
 } else { 
     print "Content-type: text/html\r\n\r\n";
-    print "<html><body onload='top.operationFrameLoaded()'>\n";
+    print "<html><body>\n";
     print "<table border='1' width='100%'>";
     print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th></tr>";
 

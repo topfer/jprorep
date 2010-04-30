@@ -114,8 +114,12 @@ function commitLDAPEntryChange() {
     ldapEntryForm.submit();
 }
 
-function blockOnTab(tabName) {
+function callTab(tabName) {
+    callDefaultTabAction(tabName);
+    activateTab(tabName);
+}
 
+function callDefaultTabAction(tabName) {
     // Exit if no frame name was given.
     if (tabName == null)
         return;
@@ -124,7 +128,9 @@ function blockOnTab(tabName) {
     nodeForm.elements.tab.value = nodeForm.elements.predicate.value = tabName;
     nodeForm.action = tabName + ".pl";
     nodeForm.submit();
+}
 
+function activateTab(tabName) {
     // Check all links
     var elList = top.details.document.getElementsByTagName("a");
 
@@ -148,6 +154,52 @@ function blockOnTab(tabName) {
             elList[i].style.visibility = "visible";
         else
             elList[i].style.visibility = "hidden";
+}
+
+function saveExportSettingsCheckbox(srcEl, trgEl) {
+    if ( srcEl.checked == 1 ) {
+        trgEl.value = 1;
+    } else {
+        trgEl.value = 0;
+    }
+}
+
+function loadExportSettingsCheckbox(srcEl, trgEl) {
+    if ( srcEl.value == 1 ) {
+        trgEl.setAttribute("checked", "1");
+    } else {
+        trgEl.removeAttribute("checked");
+    }
+}
 
 
+function saveExportSettings(sourceForm, targetForm) {
+    saveExportSettingsCheckbox(sourceForm.elements.includeContainerComment, targetForm.elements.includeContainerComment);
+    saveExportSettingsCheckbox(sourceForm.elements.includePropertyComment, targetForm.elements.includePropertyComment);
+    saveExportSettingsCheckbox(sourceForm.elements.dereferenceLinks, targetForm.elements.dereferenceLinks);
+    saveExportSettingsCheckbox(sourceForm.elements.prefixKeys, targetForm.elements.prefixKeys);
+
+    targetForm.elements.prefixKeysSeparator.value = sourceForm.elements.prefixKeysSeparator.value;
+}
+
+function loadExportSettings(sourceForm, targetForm) {
+    loadExportSettingsCheckbox(sourceForm.elements.includeContainerComment, targetForm.elements.includeContainerComment);
+    loadExportSettingsCheckbox(sourceForm.elements.includePropertyComment, targetForm.elements.includePropertyComment);
+    loadExportSettingsCheckbox(sourceForm.elements.dereferenceLinks, targetForm.elements.dereferenceLinks);
+    loadExportSettingsCheckbox(sourceForm.elements.prefixKeys, targetForm.elements.prefixKeys);
+
+    targetForm.elements.prefixKeysSeparator.value = sourceForm.elements.prefixKeysSeparator.value;
+}
+
+function exportRequest() {
+    var nodeForm = top.details.document.forms.nodeForm;
+    var extractForm = top.details.document.forms.extractForm;
+
+    extractForm.elements.tab.value = nodeForm.elements.tab.value = 'keylist';
+    extractForm.elements.predicate.value = nodeForm.elements.predicate.value = 'export';
+    extractForm.action = nodeForm.action = 'keylist.pl';
+
+    extractForm.elements.nodeDN.value = nodeForm.elements.nodeDN.value
+
+    extractForm.submit();
 }

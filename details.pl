@@ -12,7 +12,7 @@ print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th>
 
 my $actualPredicate = param("predicate");
 
-if ( $actualPredicate eq "view" ) {
+if ( $actualPredicate eq "view" || $actualPredicate eq "details") {
     &generateViewForm(param("nodeDN"));
 } elsif ( $actualPredicate eq "create" ) {
     &generateCreateForm(param("nodeDN"));
