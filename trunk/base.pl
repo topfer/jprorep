@@ -61,7 +61,6 @@ sub generateInputForm {
     print "<input type='hidden' name='predicate' value='".$predicate."'>\n";
     print "<input type='hidden' name='nodeDN' value='".$ldapEntry->get_value( "entryDN" )."'>";
     &generateInputLines($ldapEntry, $attributesArray, $classType, $loadValue, $readOnly);
-    print "</form></table></div>";
 }
 
 sub generateClassTypeSelectionForm {
@@ -96,9 +95,9 @@ sub generateCreateForm {
     &generateClassTypeSelectionForm;
 
     &generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 0, 0, "create");
+    print "</form></table></div>";
     &generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 0, 0, "create");
-
-    print "</form>\n";
+    print "</form></table></div>";
 };
 
 sub generateEditForm {
@@ -108,9 +107,9 @@ sub generateEditForm {
     &generateClassTypeSelectionForm($ldapEntry->get_value( "objectClass" ), 1);
 
     &generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 1, 0, "update");
+    print "</form></table></div>";
     &generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 0, "update");
-
-    print "</form>\n";
+    print "</form></table></div>";
 };
 
 sub generateViewForm {
@@ -124,9 +123,9 @@ sub generateViewForm {
     } else {
         &generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 1, "view");
     }
-
-    print "</form>\n";
-    #&generateInputLines($ldapEntry, $operationalAttrs, "operational", 1, 1);
+    
+    &generateInputLines($ldapEntry, $operationalAttrs, "operational", 1, 1);
+    print "</form></table></div>";
 }
 
 1;
