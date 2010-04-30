@@ -37,8 +37,8 @@ sub generateInheritedKeys {
 
     do {
         my $tempoStr = substr($currentBase, $nextNodeStart);
-        my $keyPrefixKey;        
-
+        my $keyPrefix;
+        
         if ( param("prefixKeys") == 1 ) {
             my $t1 = $tempoStr;
             $t1 =~ s/,cn=/./g;            
@@ -46,14 +46,14 @@ sub generateInheritedKeys {
             my @keyPrefixArrRev = reverse split('\.', $t2);
 
             $" = "\.";
-            $keyName = join(".",@keyPrefixArrRev);
-            $keyName = $keyName.".";
+            $keyPrefix = join(".",@keyPrefixArrRev);
+            $keyPrefix = $keyPrefix.".";
         }
 
         my $myLevelKeys = &getContainerLevelKeys($tempoStr.",".$rootDN);
 
         foreach $entry ($myLevelKeys->entries) {
-            $keyName = $keyName.$entry->get_value("cn");
+            $keyName = $keyPrefix.$entry->get_value("cn");
             print $prefix.$keyName.$delimiter.$entry->get_value("keyValue").$postfix;
         }
 
@@ -63,17 +63,20 @@ sub generateInheritedKeys {
 }
 
 if ( param("predicate") eq "export" ) {
-    print "Content-Type:application/x-download\r\n\r\n";  
-    #print "Content-Disposition:attachment;filename=toto.txt\r\n\r\n";  
-    &generateInheritedKeys("","=","\n");
-} else { 
-    print "Content-type: text/html\r\n\r\n";
-    print "<html><body>\n";
-    print "<table border='1' width='100%'>";
-    print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th></tr>";
+    if ( param("exportType") eq "prop" ) {
+        print "Content-Type:application/x-download\r\n\r\n";  
+        #print "Content-Disposition:attachment;filename=toto.txt\r\n\r\n";  
+        &generateInheritedKeys("","=","\n");
+    } elsif ( param("exportType") eq "html" ) { 
+        print CGILOG "exportType : html\n";
+        print "Content-type: text/html\r\n\r\n";
+        print "<html><body>\n";
+        print "<table border='1' width='100%'>";
+        print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th></tr>";
 
-    &generateInheritedKeys("<tr><td>","</td><td>","</td></tr>");
+        &generateInheritedKeys("<tr><td>","</td><td>","</td></tr>");
 
-    print "</table></body></html>\n";
+        print "</table></body></html>\n";
+    }
 }
 
