@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="css/main.css"/>
+  </head>
+  <body onload="top.loadExportSettings(top.details.document.forms.extractForm, top.details.detailsMainFrame.document.forms.exportSettingsForm);">
+    <form name="exportSettingsForm">
+      <table boder="0">
+        <tr>
+          <td>Include container comments</td>
+          <td><input type="checkbox" name="includeContainerComment"></td>
+        </tr>
+        <tr>
+          <td>Include property comments</td>
+          <td><input type="checkbox" name="includePropertyComment"></td>
+        </tr>
+        <tr>
+          <td>Dereference links</td>
+          <td><input type="checkbox" name="dereferenceLinks"></td>
+        </tr>
+        <tr>
+          <td>Prefix key names with container keys</td>
+          <td><input type="checkbox" name="prefixKeys"></td>
+        </tr>
+        <tr>
+          <td>Prefix separator</td>
+          <td><input type="text" name="prefixKeysSeparator" value="." size="1" maxlength="1"></td>
+        </tr>
+        <tr>
+          <td colspan="2">&nbsp;</td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+          <td><input type="button" name="save" value="save" onclick="top.saveExportSettings(top.details.detailsMainFrame.document.forms.exportSettingsForm, top.details.document.forms.extractForm)"></td>
+        </tr>        
+      </table>
+    </form>
+  </body>
+</html>
+
