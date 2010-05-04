@@ -5,6 +5,7 @@
   <body onload="top.callTab('details')">
     <form name="nodeForm" target="detailsMainFrame">
       <input type="hidden" name="nodeDN" value="0">
+      <input type="hidden" name="objectClass">
       <input type="hidden" name="tab" value="details">
       <input type="hidden" name="predicate" value="view">
       <input type="hidden" name="updateJSTree" value="">
@@ -39,7 +40,7 @@
               <div class="controlBar" id="details">
                 Edit
                 <input type="checkbox" name="edit" value="Edit" onclick="top.editFunc(checked)"/>&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="button" name="save" value="Save" disabled="true" onclick="top.commitLDAPEntryChange()"/>
+                <input type="button" name="save" value="Save" onclick="top.commitLDAPEntryChange()"/>
               </div>
               <div class="controlBar" id="keylist">
                 Enable inheritence
