@@ -44,7 +44,7 @@
                                   ndForm = top.details.document.forms.nodeForm;
                                   ndForm.elements.nodeDN.value=$(NODE).attr("id");
                                   ndForm.action = ndForm.elements.tab.value + ".pl"; 
-                                  ndForm.elements.predicate.value="view";
+                                  ndForm.elements.predicate.value = "view";                                  
                                   ndForm.submit();
                               }
             },
@@ -67,7 +67,7 @@
                                 ndForm = top.details.document.forms.nodeForm;
                                 ndForm.action = "details.pl";
                                 ndForm.elements.nodeDN.value=$(NODE).attr("id");
-                                ndForm.elements.predicate.value="create";
+                                ndForm.elements.predicate.value = "create";
                                 ndForm.submit();
                                 top.currentJSTree = TREE_OBJ;
                                 top.currentJSTreeNode = NODE;
@@ -81,7 +81,7 @@
                                 ndForm = top.details.document.forms.nodeForm;
                                 ndForm.action = "details.pl";
                                 ndForm.elements.nodeDN.value=$(NODE).attr("id");
-                                ndForm.elements.predicate.value="edit";
+                                ndForm.elements.predicate.value = "edit";
                                 ndForm.submit();
                             }
                         },
@@ -92,7 +92,7 @@
                                 ndForm = top.details.document.forms.nodeForm;
                                 ndForm.action = "update.pl";
                                 ndForm.elements.nodeDN.value=$(NODE).attr("id");
-                                ndForm.elements.predicate.value="delete";
+                                ndForm.elements.predicate.value = "delete";
                                 ndForm.submit();
                                 $.each(NODE, function () { TREE_OBJ.remove(this); });
                             }

@@ -54,23 +54,30 @@ sub generateInputForm {
 
     my ($ldapEntry, $attributesArray, $classType, $loadValue, $readOnly, $predicate) = @_;
 
-    print "<div class='ldapEntryEdit' id='".$classType."'>";
+    print "\n<div class='ldapEntryEditHidden' id='".$classType."'>";
     print "<table border='1' width='100%'>\n";
     print "<form name='".$classType."' action='update.pl'>\n";
-    print "<input type='hidden' name='objectClass' value='".$classType."'>\n";
     print "<input type='hidden' name='predicate' value='".$predicate."'>\n";
     print "<input type='hidden' name='nodeDN' value='".$ldapEntry->get_value( "entryDN" )."'>";
+    if ( $predicate eq 'create' ) {
+        &generateClassTypeSelection($classType, 0);
+    } else {
+        &generateClassTypeSelection($classType, 1);
+    };
     &generateInputLines($ldapEntry, $attributesArray, $classType, $loadValue, $readOnly);
 }
 
-sub generateClassTypeSelectionForm {
+sub generateClassTypeSelection {
 
     my $preselectedValue = $_[0];
     my $readOnly = $_[1];
 
-    print "\n<table border='1' width='100%'>";
-    print "\n<form name='classTypeSelectionForm'>\n<tr><td width='150px' align='right'>objectClass</td>";
-    print "<td><select name='objectClass' onchange='top.selectLDAPObjType(value)'";
+    if ( $readOnly == 1 ) {
+        print "<input type='hidden' name='objectClass' value='$preselectedValue'/>\n";
+    }
+
+    print "\n<tr><td width='150px' align='right'>objectClass</td>\n";
+    print "<td><select name='objectClass' onchange='top.selectLDAPEntryForm(value)'";
     if ( $readOnly == 1 ) {
         print " disabled='true'";
     }
@@ -85,14 +92,12 @@ sub generateClassTypeSelectionForm {
         print " selected='true'";
     }
     print ">propertyObject</option>";
-    print "</select></td></tr>\n</form></table>\n";
+    print "</select></td>\n</tr>";
 }
 
 sub generateCreateForm {
 
-    my $ldapEntry = &getLDAPEntry($_[0]);
-
-    &generateClassTypeSelectionForm;
+    my $ldapEntry = $_[0];
 
     &generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 0, 0, "create");
     print "</form></table></div>";
@@ -102,21 +107,19 @@ sub generateCreateForm {
 
 sub generateEditForm {
 
-    my $ldapEntry = &getLDAPEntry($_[0]);
+    my $ldapEntry = $_[0];
 
-    &generateClassTypeSelectionForm($ldapEntry->get_value( "objectClass" ), 1);
-
-    &generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 1, 0, "update");
-    print "</form></table></div>";
-    &generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 0, "update");
+    if ($ldapEntry->get_value( "objectClass" ) eq "propertyContainer") {
+        &generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 1, 0, "update");
+    } else {
+        &generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 0, "update");
+    }
     print "</form></table></div>";
 };
 
 sub generateViewForm {
     
-    my $ldapEntry = &getLDAPEntry($_[0]);
-
-    &generateClassTypeSelectionForm($ldapEntry->get_value( "objectClass" ), 1);
+    my $ldapEntry = $_[0];
 
     if ($ldapEntry->get_value( "objectClass" ) eq "propertyContainer") {
         &generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 1, 1, "view");

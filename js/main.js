@@ -13,7 +13,9 @@ function debugObject(obj) {
 }
 
 function debugForm(actForm) {
-    var str = "action" + " : " + actForm.action + "\n";
+    var str = "action : " + actForm.action + "\n";
+
+    str += "name : " + actForm.name + "\n";
 
     for(i=0;i<actForm.elements.length;i++) {
         str += actForm.elements[i].name + " : " + actForm.elements[i].value + "\n"; 
@@ -47,23 +49,20 @@ function resetControls() {
     detailsControlForm.elements.save.disabled= 'true';
 }
 
-function selectLDAPObjType(objClassValue) {
+function selectLDAPEntryForm(objClassValue) {
+    //get list of currently visible divs (normally there should be just one)
+    var completeVisibleList = top.details.detailsMainFrame.document.getElementsByClassName("ldapEntryEditVisible");
 
-    //debugForm(top.details.document.forms.nodeForm);
+    for (i = 0; i < completeVisibleList.length; i++)
+        completeVisibleList[i].className = "ldapEntryEditHidden";
 
-    if ( ! objClassValue ) {
-        objClassValue = top.details.detailsMainFrame.document.forms.classTypeSelectionForm.elements.objectClass.value;
-    }
+    var activeDiv = top.details.detailsMainFrame.document.getElementById(objClassValue);
+    activeDiv.className = "ldapEntryEditVisible";
 
-    var completeList = top.details.detailsMainFrame.document.getElementsByClassName("ldapEntryEdit");
-    for (i = 0; i < completeList.length; i++)
-        if ( completeList[i].id == objClassValue ) {
-            completeList[i].style.visibility = "visible";
-        }
-        else {
-            completeList[i].style.visibility = "hidden";
-        }
+    top.details.document.forms.nodeForm.elements.objectClass.value = objClassValue;
+}
 
+function setDetailsControlForm() {
     var controlsForm = top.details.document.forms.detailsControlForm;
 
     if ( top.details.document.forms.nodeForm.elements.predicate.value === "view" ) {
@@ -73,12 +72,16 @@ function selectLDAPObjType(objClassValue) {
         controlsForm.elements.edit.setAttribute("checked", "true");
         controlsForm.elements.save.removeAttribute("disabled");       
     }
+}
 
-    var updateJSTreeAction = top.details.document.forms.nodeForm.elements.updateJSTree;
-    if ( updateJSTreeAction.value != "" ) {
+function updateJSTree( updateJSTreeAction ) {
+    //alert("jstreeAction : _" + updateJSTreeAction + "_");
+    //var updateJSTreeAction = top.details.document.forms.nodeForm.elements.updateJSTree;
+    if ( updateJSTreeAction && updateJSTreeAction.value != "" ) {
+        var objClassValue = top.details.document.forms.nodeForm.elements.objectClass.value;
         var nodeTitle = top.details.detailsMainFrame.document.forms[objClassValue].elements.cn.value;
         var nodeID = top.details.detailsMainFrame.document.forms[objClassValue].elements.nodeDN.value;
-        if ( updateJSTreeAction.value === "add") {
+        if ( updateJSTreeAction === "add") {
             if ( objClassValue === "propertyObject") { 
                 currentJSTree.create({ attributes : { 'class' : 'leaf', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle, icon : 'icons/key-icon.png'} }, currentJSTreeNode, "inside");
             } else {
@@ -95,21 +98,19 @@ function selectLDAPObjType(objClassValue) {
     }
 }
 
+function selectLDAPObjType(objClassValue) {
+
+    selectLDAPEntryForm(objClassValue);
+
+    setDetailsControlForm();
+
+    updateJSTree();
+}
+
 function commitLDAPEntryChange() {
 
-    var classTypeSelectionForm, objType;
-
-    classTypeSelectionForm = top.details.detailsMainFrame.document.forms.classTypeSelectionForm;
-    objType = classTypeSelectionForm.elements.objectClass.value;
-
-//     for(i=0;i<top.details.detailsMainFrame.document.forms.length;i++) {
-//         alert(top.details.detailsMainFrame.document.forms[i].name);
-//     }
-
-    ldapEntryForm = top.details.detailsMainFrame.document.forms[objType];
+    ldapEntryForm = top.details.detailsMainFrame.document.forms[top.details.document.forms.nodeForm.elements.objectClass.value];
     //ldapEntryForm.elements.action='update';
-
-    //debugForm(ldapEntryForm);
 
     ldapEntryForm.submit();
 }
@@ -171,7 +172,6 @@ function loadExportSettingsCheckbox(srcEl, trgEl) {
         trgEl.removeAttribute("checked");
     }
 }
-
 
 function saveExportSettings(sourceForm, targetForm) {
     saveExportSettingsCheckbox(sourceForm.elements.includeContainerComment, targetForm.elements.includeContainerComment);

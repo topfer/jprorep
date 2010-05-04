@@ -5,12 +5,14 @@ use CGI qw(:standard escapeHTML);
 
 require "base.pl";
 
-my $actualDN, $updateJSTree;
+my ($actualDN, $updateJSTree);
 
-#open(CGILOG, ">> /tmp/cgi.log");
+open(CGILOG, ">> /tmp/cgi.log");
 
 sub createListfromCGIParams {
-     my (@replaceList, $srcListRef);
+    my (@replaceList, $srcListRef);
+
+    
 
     if ( param("objectClass") eq "propertyObject") {
         $srcListRef = $propertyAttrs;
@@ -18,13 +20,13 @@ sub createListfromCGIParams {
         $srcListRef = $containerAttrs;
     }     
 
-     foreach $attr (@$srcListRef) {
-         if ( length param($attr) > 0) {
-             push(@replaceList, $attr ,param($attr));
-         }
-     }
+    foreach $attr (@$srcListRef) {
+        if ( length param($attr) > 0) {
+            push(@replaceList, $attr ,param($attr));
+        }
+    }
 
-     return \@replaceList;
+    return \@replaceList;
 }
 
 sub LDAPcreateUsingList {
@@ -56,27 +58,41 @@ if ( param("predicate") eq "create") {
 
     $actualDN = "cn=".param("cn").",".param("nodeDN");
 
-    $translationList = &createListfromCGIParams();
+    my $translationList = &createListfromCGIParams();
+
     push(@$translationList, "objectclass", param("objectClass"));
 
-    $updateJSTree = "&updateJSTree=add";
     $result = $ldap->add($actualDN, attr => $translationList);
+    $updateJSTree = "&updateJSTree=add";
 
 } elsif ( param("predicate") eq "update") {
 
     $actualDN = param("nodeDN");
         
-    $translationList = &createListfromCGIParams();
+    my $translationList = &createListfromCGIParams();
 
+    #$result = LDAPmodifyUsingList( $ldap, param("nodeDN"), $translationList );
+    $"='.';
+    print CGILOG "Update params : @$translationList\n";
+    $result = $ldap->modify(param("nodeDN"), changes => [ replace => [ @$translationList ] ]);
     $updateJSTree = "&updateJSTree=modify";
-    $result = LDAPmodifyUsingList( $ldap, param("nodeDN"), $translationList );
     
-} elsif ( param("predicate") eq "delete") {
-    $updateJSTree = "&updateJSTree=delete";
+} elsif ( param("predicate") eq "delete") {    
     $result = $ldap->delete(param("nodeDN"));
+    $updateJSTree = "&updateJSTree=delete";
 }
 
-die $result->error(  ) if $result->code(  );
+if ( $result->code ) {
+    print "Content-type: text/html\r\n\r\n";
+    print "<html><body>\n";
+    print "Return code: ".$result->code."<br/>\n";
+    print "Message: ".$result->error_name."<br/>\n";
+    print "Message text : ".$result->error_text."<br/>\n";
+    print "MessageID: ".$result->mesg_id."<br/>\n";
+    print "DN: ".$result->dn."<br/>\n";
+    print "</body></html>\n";
+    die $result->error;
+}
 
 $ldap->unbind;
 
