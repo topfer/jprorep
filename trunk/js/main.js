@@ -49,6 +49,13 @@ function resetControls() {
     detailsControlForm.elements.save.disabled= 'true';
 }
 
+function selectOptionForValue(selectionControl, objClassValue) {
+    if ( selectionControl && selectionControl.options)
+        for(i=0;i<selectionControl.options.length;i++)
+            if (selectionControl.options[i].value == objClassValue)
+                selectionControl.options[i].selected = 'true';
+}
+
 function selectLDAPEntryForm(objClassValue) {
     //get list of currently visible divs (normally there should be just one)
     var completeVisibleList = top.details.detailsMainFrame.document.getElementsByClassName("ldapEntryEditVisible");
@@ -60,6 +67,8 @@ function selectLDAPEntryForm(objClassValue) {
     activeDiv.className = "ldapEntryEditVisible";
 
     top.details.document.forms.nodeForm.elements.objectClass.value = objClassValue;
+
+    selectOptionForValue(top.details.detailsMainFrame.document.forms[objClassValue].elements.objectClass, objClassValue);
 }
 
 function setDetailsControlForm() {
