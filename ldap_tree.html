@@ -43,9 +43,13 @@
                 onselect	: function(NODE,TREE_OBJ) { 
                                   ndForm = top.details.document.forms.nodeForm;
                                   ndForm.elements.nodeDN.value=$(NODE).attr("id");
+                                  if ( ndForm.elements.tab.value == "keylist" ) {
+                                      top.exportRequest('html');
+                                  } else {
                                   ndForm.action = ndForm.elements.tab.value + ".pl"; 
                                   ndForm.elements.predicate.value = "view";                                  
                                   ndForm.submit();
+                                  }
                               }
             },
             ui : {
@@ -96,8 +100,15 @@
                                 ndForm.submit();
                                 $.each(NODE, function () { TREE_OBJ.remove(this); });
                             }
+                        },
+                        copy : {
+                            label   : "Copy",
+                            icon    : "/icons/copy-icon.png"
+                        },
+                        paste : {
+                            label   : "Paste",
+                            icon    : "icons/paste-icon.png"
                         }
-
                     }
                 }
             }
