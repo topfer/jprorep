@@ -7,6 +7,7 @@
 	<script type="text/javascript" src="jstree/lib/sarissa.js"></script>
 	<script type="text/javascript" src="jstree/jquery.tree.js"></script>
     <script type="text/javascript" src="jstree/plugins/jquery.tree.contextmenu.js"></script>
+    <script type="text/javascript" src="js/jquery.tree.dragndropctxmenu.js"></script>
     <script type="text/javascript" src="jstree/plugins/jquery.tree.xml_flat.js"></script>
     <!--
 	<script type="text/javascript" src="jstree/plugins/jquery.tree.checkbox.js"></script>
@@ -50,12 +51,17 @@
                                   ndForm.elements.predicate.value = "view";                                  
                                   ndForm.submit();
                                   }
-                              }
+                              },
+                ondrop  : function(NODE, REF_NODE, TYPE, TREE_OBJ, RB) {
+                                  alert("Node move !");
+                                  return false;
+                              } 
             },
             ui : {
                 theme_name : "classic"
             },
             plugins : {
+                dragndropctxmenu : {} ,
                 contextmenu : {
                     items : {
                         create : {

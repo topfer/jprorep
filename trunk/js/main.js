@@ -64,11 +64,13 @@ function selectLDAPEntryForm(objClassValue) {
         completeVisibleList[i].className = "ldapEntryEditHidden";
 
     var activeDiv = top.details.detailsMainFrame.document.getElementById(objClassValue);
-    activeDiv.className = "ldapEntryEditVisible";
+    if ( activeDiv ) {
+        activeDiv.className = "ldapEntryEditVisible";
 
-    top.details.document.forms.nodeForm.elements.objectClass.value = objClassValue;
+        top.details.document.forms.nodeForm.elements.objectClass.value = objClassValue;
 
-    selectOptionForValue(top.details.detailsMainFrame.document.forms[objClassValue].elements.objectClass, objClassValue);
+        selectOptionForValue(top.details.detailsMainFrame.document.forms[objClassValue].elements.objectClass, objClassValue);
+    }
 }
 
 function setDetailsControlForm() {
