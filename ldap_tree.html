@@ -1,15 +1,18 @@
 <html>
 <head>
+    <script type="text/javascript" src="js/common.js"></script>
 	<script type="text/javascript" src="jstree/lib/jquery.js"></script>
 	<script type="text/javascript" src="jstree/lib/jquery.cookie.js"></script>
 	<script type="text/javascript" src="jstree/lib/jquery.hotkeys.js"></script>
 	<script type="text/javascript" src="jstree/lib/jquery.metadata.js"></script>
 	<script type="text/javascript" src="jstree/lib/sarissa.js"></script>
 	<script type="text/javascript" src="jstree/jquery.tree.js"></script>
+    <script type="text/javascript" src="jstree/plugins/jquery.tree.xml_flat.js"></script>
+    <script type="text/javascript" src="js/arcorectxmenu.js"></script>
+    <link type="text/css" rel="stylesheet" href="css/arcorectxmenu.css"/>
+    <!--
     <script type="text/javascript" src="jstree/plugins/jquery.tree.contextmenu.js"></script>
     <script type="text/javascript" src="js/jquery.tree.dragndropctxmenu.js"></script>
-    <script type="text/javascript" src="jstree/plugins/jquery.tree.xml_flat.js"></script>
-    <!--
 	<script type="text/javascript" src="jstree/plugins/jquery.tree.checkbox.js"></script>
 	<script type="text/javascript" src="jstree/plugins/jquery.tree.contextmenu.js"></script>
 	<script type="text/javascript" src="jstree/plugins/jquery.tree.cookie.js"></script>
@@ -41,82 +44,12 @@
 			},
             callback : {
                 beforedata	: function(NODE,TREE_OBJ) { return { id : $(NODE).attr("id") || 0 } },
-                onselect	: function(NODE,TREE_OBJ) { 
-                                  ndForm = top.details.document.forms.nodeForm;
-                                  ndForm.elements.nodeDN.value=$(NODE).attr("id");
-                                  if ( ndForm.elements.tab.value == "keylist" ) {
-                                      top.exportRequest('html');
-                                  } else {
-                                  ndForm.action = ndForm.elements.tab.value + ".pl"; 
-                                  ndForm.elements.predicate.value = "view";                                  
-                                  ndForm.submit();
-                                  }
-                              },
-                ondrop  : function(NODE, REF_NODE, TYPE, TREE_OBJ, RB) {
-                                  alert("Node move !");
-                                  return false;
-                              } 
             },
             ui : {
                 theme_name : "classic"
             },
             plugins : {
-                dragndropctxmenu : {} ,
-                contextmenu : {
-                    items : {
-                        create : {
-                            label   : "Create",
-                            icon    : "create",
-                            visible : function  (NODE, TREE_OBJ) {
-                                if ( $(NODE).attr("class").search(/object/i) == -1 )
-                                    return 1;
-                                else
-                                    return 0;
-                            },
-                            action  : function (NODE, TREE_OBJ) {
-                                ndForm = top.details.document.forms.nodeForm;
-                                ndForm.action = "details.pl";
-                                ndForm.elements.nodeDN.value=$(NODE).attr("id");
-                                ndForm.elements.predicate.value = "create";
-                                ndForm.submit();
-                                top.currentJSTree = TREE_OBJ;
-                                top.currentJSTreeNode = NODE;
-                            }
-                        } ,
-                        rename : false,
-                        edit : {
-                            label   : "Edit",
-                            icon    : "rename",
-                            action  : function (NODE, TREE_OBJ) {
-                                ndForm = top.details.document.forms.nodeForm;
-                                ndForm.action = "details.pl";
-                                ndForm.elements.nodeDN.value=$(NODE).attr("id");
-                                ndForm.elements.predicate.value = "edit";
-                                ndForm.submit();
-                            }
-                        },
-                        remove : {
-                            label   : "Delete",
-                            icon    : "remove",
-                            action  : function (NODE, TREE_OBJ) {
-                                ndForm = top.details.document.forms.nodeForm;
-                                ndForm.action = "update.pl";
-                                ndForm.elements.nodeDN.value=$(NODE).attr("id");
-                                ndForm.elements.predicate.value = "delete";
-                                ndForm.submit();
-                                $.each(NODE, function () { TREE_OBJ.remove(this); });
-                            }
-                        },
-                        copy : {
-                            label   : "Copy",
-                            icon    : "/icons/copy-icon.png"
-                        },
-                        paste : {
-                            label   : "Paste",
-                            icon    : "icons/paste-icon.png"
-                        }
-                    }
-                }
+                arcorectxmenu : {}
             }
 		});
 	});

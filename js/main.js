@@ -2,16 +2,6 @@ var currentJSTree;
 var currentJSTreeNode;
 var currentJSTreeAction;
 
-function debugObject(obj) {
-    var str = "";
-
-    for(i=0;i<obj.length;i++) {
-        str += obj[i].name + " : " + obj[i].value + "\n"; 
-    }
-    
-    alert(str);
-}
-
 function debugForm(actForm) {
     var str = "action : " + actForm.action + "\n";
 
