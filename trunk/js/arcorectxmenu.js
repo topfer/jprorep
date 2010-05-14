@@ -3,7 +3,7 @@
 		"arcorectxmenu" : {
 			object : $("<ul id='jstree-arcorectxmenu' class='tree-context' />"),
 			data : {
-				t : false,
+				TREE_OBJ : false,
 				a : false,
 				r : false
 			},
@@ -106,7 +106,7 @@
 					if(!opts.items.hasOwnProperty(i)) continue;
 					if(opts.items[i] === false) continue;
 					var r = 1;
-					if(typeof opts.items[i].visible == "function") r = opts.items[i].visible.call(null, $.tree.plugins.arcorectxmenu.data.a, TREE_OBJ);
+					if(typeof opts.items[i].visible == "function") r = opts.items[i].visible.call(null, $.tree.plugins.arcorectxmenu.data.NODE, TREE_OBJ);
 					if(r == -1) continue;
 					else cnt ++;
 					if(opts.items[i].separator_before === true) str += "<li class='separator'><span>&nbsp;</span></li>";
@@ -129,18 +129,18 @@
 				$.tree.plugins.arcorectxmenu.object.css({ "left" : (x), "top" : (y) }).fadeIn("fast");
 			},
 			hide : function () {
-				if(!$.tree.plugins.arcorectxmenu.data.t) return;
-				var opts = $.extend(true, {}, $.tree.plugins.arcorectxmenu.defaults, $.tree.plugins.arcorectxmenu.data.t.settings.plugins.arcorectxmenu);
-				if($.tree.plugins.arcorectxmenu.data.r && $.tree.plugins.arcorectxmenu.data.a) {
-					$.tree.plugins.arcorectxmenu.data.a.children("a, span").removeClass(opts.class_name);
+				if(!$.tree.plugins.arcorectxmenu.data.TREE_OBJ) return;
+				var opts = $.extend(true, {}, $.tree.plugins.arcorectxmenu.defaults, $.tree.plugins.arcorectxmenu.data.TREE_OBJ.settings.plugins.arcorectxmenu);
+				if($.tree.plugins.arcorectxmenu.data.r && $.tree.plugins.arcorectxmenu.data.NODE) {
+					$.tree.plugins.arcorectxmenu.data.NODE.children("a, span").removeClass(opts.class_name);
 				}
 				$.tree.plugins.arcorectxmenu.data = { a : false, r : false, t : false };
 				$.tree.plugins.arcorectxmenu.object.fadeOut("fast");
 			},
 			exec : function (cmd) {
-				if($.tree.plugins.arcorectxmenu.data.t == false) return;
-				var opts = $.extend(true, {}, $.tree.plugins.arcorectxmenu.defaults, $.tree.plugins.arcorectxmenu.data.t.settings.plugins.arcorectxmenu);
-				try { opts.items[cmd].action.apply(null, [$.tree.plugins.arcorectxmenu.data.a, $.tree.plugins.arcorectxmenu.data.t]); } catch(e) { };
+				if($.tree.plugins.arcorectxmenu.data.TREE_OBJ == false) return;
+				var opts = $.extend(true, {}, $.tree.plugins.arcorectxmenu.defaults, $.tree.plugins.arcorectxmenu.data.TREE_OBJ.settings.plugins.arcorectxmenu);
+				try { opts.items[cmd].action.apply(null, [$.tree.plugins.arcorectxmenu.data.NODE, $.tree.plugins.arcorectxmenu.data.TREE_OBJ]); } catch(e) { };
 			},
 			callbacks : {
 // 				oninit : function () {
@@ -164,16 +164,16 @@
 					var opts = $.extend(true, {}, $.tree.plugins.arcorectxmenu.defaults, TREE_OBJ.settings.plugins.arcorectxmenu);
 					NODE = $(NODE);
 					if(NODE.size() == 0) return;
-					$.tree.plugins.arcorectxmenu.data.t = TREE_OBJ;
+					$.tree.plugins.arcorectxmenu.data.TREE_OBJ = TREE_OBJ;
 					if(!NODE.children("a:eq(0)").hasClass("clicked")) {
-						$.tree.plugins.arcorectxmenu.data.a = NODE;
+						$.tree.plugins.arcorectxmenu.data.NODE = NODE;
 						$.tree.plugins.arcorectxmenu.data.r = true;
 						NODE.children("a").addClass(opts.class_name);
 						e.target.blur();
 					}
 					else { 
 						$.tree.plugins.arcorectxmenu.data.r = false; 
-						$.tree.plugins.arcorectxmenu.data.a = (TREE_OBJ.selected_arr && TREE_OBJ.selected_arr.length > 1) ? TREE_OBJ.selected_arr : TREE_OBJ.selected;
+						$.tree.plugins.arcorectxmenu.data.NODE = (TREE_OBJ.selected_arr && TREE_OBJ.selected_arr.length > 1) ? TREE_OBJ.selected_arr : TREE_OBJ.selected;
 					}
                     $.tree.plugins.arcorectxmenu.defaults.items = $.tree.plugins.arcorectxmenu.defaults.items_rgtclick;
 					$.tree.plugins.arcorectxmenu.show(NODE, TREE_OBJ);
@@ -185,15 +185,15 @@
 					var opts = $.extend(true, {}, $.tree.plugins.arcorectxmenu.defaults, TREE_OBJ.settings.plugins.arcorectxmenu);
 					NODE = $(NODE);
 					if(NODE.size() == 0) return;
-					$.tree.plugins.arcorectxmenu.data.t = TREE_OBJ;
+					$.tree.plugins.arcorectxmenu.data.TREE_OBJ = TREE_OBJ;
 					if(!NODE.children("a:eq(0)").hasClass("clicked")) {
-						$.tree.plugins.arcorectxmenu.data.a = NODE;
+						$.tree.plugins.arcorectxmenu.data.NODE = NODE;
 						$.tree.plugins.arcorectxmenu.data.r = true;
 						NODE.children("a").addClass(opts.class_name);
 					}
 					else { 
 						$.tree.plugins.arcorectxmenu.data.r = false; 
-						$.tree.plugins.arcorectxmenu.data.a = (TREE_OBJ.selected_arr && TREE_OBJ.selected_arr.length > 1) ? TREE_OBJ.selected_arr : TREE_OBJ.selected;
+						$.tree.plugins.arcorectxmenu.data.NODE = (TREE_OBJ.selected_arr && TREE_OBJ.selected_arr.length > 1) ? TREE_OBJ.selected_arr : TREE_OBJ.selected;
 					}
 
                     $.tree.plugins.arcorectxmenu.defaults.items = $.tree.plugins.arcorectxmenu.defaults.items_dragndrop;
