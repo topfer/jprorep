@@ -4,7 +4,7 @@
 			object : $("<ul id='jstree-arcorectxmenu' class='tree-context' />"),
 			data : {
 				TREE_OBJ : false,
-				a : false,
+				NODE : false,
 				r : false
 			},
 			defaults : {
