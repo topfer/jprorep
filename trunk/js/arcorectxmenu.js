@@ -5,7 +5,9 @@
 			data : {
 				TREE_OBJ : false,
 				NODE : false,
-				r : false
+                REF_NODE : false,
+                TYPE : false,
+				r : false                    
 			},
 			defaults : {
 				class_name : "hover",
@@ -92,7 +94,15 @@
 					link : {
 						label	: "Link", 
 						icon	: "link",
-                        action	: function (NODE, TREE_OBJ) { alert("Link"); }
+                        action	: function (NODE, TREE_OBJ, REF_NODE, TYPE) {
+                            var ndForm = top.details.document.forms.nodeForm;
+                            ndForm.action = "update.pl";
+                            ndForm.elements.nodeDN.value=$(NODE).attr("id");
+                            ndForm.elements.refnodeDN.value=$(REF_NODE).attr("id");
+                            ndForm.elements.nodePosType.value=TYPE;
+                            ndForm.elements.predicate.value = "link";
+                            ndForm.submit();
+                        }
 					}
 				}                   
 			},
@@ -140,15 +150,12 @@
 			exec : function (cmd) {
 				if($.tree.plugins.arcorectxmenu.data.TREE_OBJ == false) return;
 				var opts = $.extend(true, {}, $.tree.plugins.arcorectxmenu.defaults, $.tree.plugins.arcorectxmenu.data.TREE_OBJ.settings.plugins.arcorectxmenu);
-				try { opts.items[cmd].action.apply(null, [$.tree.plugins.arcorectxmenu.data.NODE, $.tree.plugins.arcorectxmenu.data.TREE_OBJ]); } catch(e) { };
+				try { opts.items[cmd].action.apply(null, [$.tree.plugins.arcorectxmenu.data.NODE, 
+                                                          $.tree.plugins.arcorectxmenu.data.TREE_OBJ,
+                                                          $.tree.plugins.arcorectxmenu.data.REF_NODE,
+                                                          $.tree.plugins.arcorectxmenu.data.TYPE]); } catch(e) { };
 			},
 			callbacks : {
-// 				oninit : function () {
-// 					if(!$.tree.plugins.arcorectxmenu.css) {
-// 						var css = '#jstree-arcorectxmenu { display:none; position:absolute; z-index:2000; list-style-type:none; margin:0; padding:0; left:-2000px; top:-2000px; } .tree-context { margin:20px; padding:0; width:180px; border:1px solid #979797; padding:2px; background:#f5f5f5; list-style-type:none; }.tree-context li { height:22px; margin:0 0 0 27px; padding:0; background:#ffffff; border-left:1px solid #e0e0e0; }.tree-context li a { position:relative; display:block; height:22px; line-height:22px; margin:0 0 0 -28px; text-decoration:none; color:black; padding:0; }.tree-context li a ins { text-decoration:none; float:left; width:16px; height:16px; margin:0 0 0 0; background-color:#f0f0f0; border:1px solid #f0f0f0; border-width:3px 5px 3px 6px; line-height:16px; }.tree-context li a span { display:block; background:#f0f0f0; margin:0 0 0 29px; padding-left:5px; }.tree-context li.separator { background:#f0f0f0; height:2px; line-height:2px; font-size:1px; border:0; margin:0; padding:0; }.tree-context li.separator span { display:block; margin:0px 0 0px 27px; height:1px; border-top:1px solid #e0e0e0; border-left:1px solid #e0e0e0; line-height:1px; font-size:1px; background:white; }.tree-context li a:hover { border:1px solid #d8f0fa; height:20px; line-height:20px; }.tree-context li a:hover span { background:#e7f4f9; margin-left:28px; }.tree-context li a:hover ins { background-color:#e7f4f9; border-color:#e7f4f9; border-width:2px 5px 2px 5px; }.tree-context li a.disabled { color:gray; }.tree-context li a.disabled ins { }.tree-context li a.disabled:hover { border:0; height:22px; line-height:22px; }.tree-context li a.disabled:hover span { background:#f0f0f0; margin-left:29px; }.tree-context li a.disabled:hover ins { border-color:#f0f0f0; background-color:#f0f0f0; border-width:3px 5px 3px 6px; }';
-// 						$.tree.plugins.arcorectxmenu.css = this.add_sheet({ str : css });
-// 					}
-// 				},
                 onselect : function(NODE,TREE_OBJ) { 
                     var ndForm = top.details.document.forms.nodeForm;
                     ndForm.elements.nodeDN.value=$(NODE).attr("id");
@@ -162,14 +169,16 @@
                 },
 				onrgtclk : function (NODE, TREE_OBJ, EV) {
 					var opts = $.extend(true, {}, $.tree.plugins.arcorectxmenu.defaults, TREE_OBJ.settings.plugins.arcorectxmenu);
+                    //alert("Node_dbg_01 : " + NODE);
 					NODE = $(NODE);
+                    //alert("Node_dbg_02 : " + NODE);
 					if(NODE.size() == 0) return;
 					$.tree.plugins.arcorectxmenu.data.TREE_OBJ = TREE_OBJ;
 					if(!NODE.children("a:eq(0)").hasClass("clicked")) {
 						$.tree.plugins.arcorectxmenu.data.NODE = NODE;
 						$.tree.plugins.arcorectxmenu.data.r = true;
 						NODE.children("a").addClass(opts.class_name);
-						e.target.blur();
+						EV.target.blur();
 					}
 					else { 
 						$.tree.plugins.arcorectxmenu.data.r = false; 
@@ -195,6 +204,10 @@
 						$.tree.plugins.arcorectxmenu.data.r = false; 
 						$.tree.plugins.arcorectxmenu.data.NODE = (TREE_OBJ.selected_arr && TREE_OBJ.selected_arr.length > 1) ? TREE_OBJ.selected_arr : TREE_OBJ.selected;
 					}
+
+                    REF_NODE = $(REF_NODE);
+                    $.tree.plugins.arcorectxmenu.data.REF_NODE = REF_NODE;
+                    $.tree.plugins.arcorectxmenu.data.TYPE = TYPE;
 
                     $.tree.plugins.arcorectxmenu.defaults.items = $.tree.plugins.arcorectxmenu.defaults.items_dragndrop;
 					$.tree.plugins.arcorectxmenu.show(NODE, TREE_OBJ);
