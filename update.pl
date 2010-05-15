@@ -65,6 +65,30 @@ if ( param("predicate") eq "create") {
     $result = $ldap->add($actualDN, attr => $translationList);
     $updateJSTree = "&updateJSTree=add";
 
+} elsif ( param("predicate") eq "link") {
+
+    my ($containingDN, $currentCN, @translationList);
+
+    if ( param("nodePosType") eq "inside" ) {
+        $containingDN = param("refnodeDN");
+    } else {
+        $containingDN = substr(param("refnodeDN"), index(param("refnodeDN"),',') + 1);
+    }    
+
+    $currentCN = substr(param("nodeDN"), 0, index(param("nodeDN"), ','));
+    $actualDN = $currentCN.','.$containingDN;
+    
+#     print CGILOG "Drop container : $containingDN\n";
+#     print CGILOG "CN : $currentCN\n";
+#     print CGILOG "Real DN : $actualDN\n";
+
+    push(@translationList, "objectclass", "alias");
+    push(@translationList, "objectclass", "extensibleObject");
+    push(@translationList, "aliasedObjectName", param("nodeDN"));
+
+    $result = $ldap->add($actualDN, attr => \@translationList);
+    $updateJSTree = "&updateJSTree=add";
+
 } elsif ( param("predicate") eq "update") {
 
     $actualDN = param("nodeDN");
@@ -73,7 +97,7 @@ if ( param("predicate") eq "create") {
 
     #$result = LDAPmodifyUsingList( $ldap, param("nodeDN"), $translationList );
     $"='.';
-    print CGILOG "Update params : @$translationList\n";
+    #print CGILOG "Update params : @$translationList\n";
     $result = $ldap->modify(param("nodeDN"), changes => [ replace => [ @$translationList ] ]);
     $updateJSTree = "&updateJSTree=modify";
     
