@@ -12,8 +12,6 @@ open(CGILOG, ">> /tmp/cgi.log");
 sub createListfromCGIParams {
     my (@replaceList, $srcListRef);
 
-    
-
     if ( param("objectClass") eq "propertyObject") {
         $srcListRef = $propertyAttrs;
     } elsif ( param("objectClass") eq "propertyContainer") {
@@ -24,6 +22,26 @@ sub createListfromCGIParams {
         if ( length param($attr) > 0) {
             push(@replaceList, $attr ,param($attr));
         }
+    }
+
+    return \@replaceList;
+}
+
+sub createParamListByCopy {
+
+    my (@replaceList, $sourceDN, $sourceEntry, $attrList);
+    $sourceDN = $_[0];
+    
+    $sourceEntry = getLDAPEntry(param("nodeDN"));
+
+    if ( $sourceEntry->get_value("objectclass") eq "propertyObject") {
+        $attrList = $propertyAttrs;
+    } elsif ( $sourceEntry->get_value("objectclass") eq "propertyContainer") {
+        $attrList = $containerAttrs;
+    }
+
+    foreach $attr (@$attrList) {    
+        push(@replaceList, $attr ,$sourceEntry->get_value($attr));
     }
 
     return \@replaceList;
@@ -87,6 +105,26 @@ if ( param("predicate") eq "create") {
     push(@translationList, "aliasedObjectName", param("nodeDN"));
 
     $result = $ldap->add($actualDN, attr => \@translationList);
+    $updateJSTree = "&updateJSTree=add";
+
+} elsif ( param("predicate") eq "copy") {
+
+    my ($sourceEntry, $attrList, $containingDN, $currentCN, $translationListRef);
+
+    if ( param("nodePosType") eq "inside" ) {
+        $containingDN = param("refnodeDN");
+    } else {
+        $containingDN = substr(param("refnodeDN"), index(param("refnodeDN"),',') + 1);
+    }    
+
+    $currentCN = substr(param("nodeDN"), 0, index(param("nodeDN"), ','));
+    $actualDN = $currentCN.','.$containingDN;
+    
+    my $translationListRef = &createParamListByCopy(param("nodeDN"));    
+
+    push(@$translationListRef, "objectclass", "propertyObject");
+
+    $result = $ldap->add($actualDN, attr => $translationListRef);
     $updateJSTree = "&updateJSTree=add";
 
 } elsif ( param("predicate") eq "update") {

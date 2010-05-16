@@ -84,7 +84,15 @@
 					copy : {
 						label	: "Copy", 
 						icon	: "copy",
-                        action	: function (NODE, TREE_OBJ) { alert("Copy"); }
+                        action	: function (NODE, TREE_OBJ, REF_NODE, TYPE) {
+                            var ndForm = top.details.document.forms.nodeForm;
+                            ndForm.action = "update.pl";
+                            ndForm.elements.nodeDN.value=$(NODE).attr("id");
+                            ndForm.elements.refnodeDN.value=$(REF_NODE).attr("id");
+                            ndForm.elements.nodePosType.value=TYPE;
+                            ndForm.elements.predicate.value = "copy";
+                            ndForm.submit();
+                        }
 					},
 					move : {
 						label	: "Move", 
