@@ -2,7 +2,7 @@
 use Net::LDAP;
 use CGI qw(:standard escapeHTML);
 
-#require "base.pl";
+require "base.pl";
 
 #open(CGILOG, ">> /tmp/cgi.log");
 
@@ -53,8 +53,11 @@ sub generateInheritedKeys {
         my $myLevelKeys = &getContainerLevelKeys($tempoStr.",".$rootDN);
 
         foreach $entry ($myLevelKeys->entries) {
+            if ( $entry->get_value("objectclass") eq "alias" ) {
+                $entry = getLDAPEntry($entry->get_value("aliasedObjectName"));
+            }
             $keyName = $keyPrefix.$entry->get_value("cn");
-            print $prefix.$keyName.$delimiter.$entry->get_value("keyValue").$postfix;
+            print $prefix.$keyName.$delimiter.$entry->get_value("keyValue")."&nbsp;".$postfix;
         }
 
         $nextNodeStart = index($currentBase, ',', $nextNodeStart + 1) + 1;

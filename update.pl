@@ -7,7 +7,7 @@ require "base.pl";
 
 my ($actualDN, $updateJSTree);
 
-open(CGILOG, ">> /tmp/cgi.log");
+#open(CGILOG, ">> /tmp/cgi.log");
 
 sub createListfromCGIParams {
     my (@replaceList, $srcListRef);
