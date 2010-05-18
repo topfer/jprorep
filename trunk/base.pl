@@ -1,3 +1,5 @@
+use POSIX qw(strftime);
+
 $containerAttrs = ["cn","description"];
 $propertyAttrs = ["cn","description","keyValue","keyType","valueType"];
 $operationalAttrs = ['entryDN','creatorsName','createTimestamp','modifiersName','modifyTimestamp'];
@@ -7,8 +9,11 @@ my @allAttributes = ("objectClass", @$propertyAttrs, @$operationalAttrs);
 undef %isOperational;
 for (@$operationalAttrs) { $isOperational{$_} = 1; }
 
-sub getLDAPEntry {
+sub printCurrTime() {
+        return strftime("%Y_%b_%e_%H_%M_%S", localtime);
+}
 
+sub getLDAPEntry {
     my $nodeDN = $_[0];
 
     if ( ! defined $nodeDN || $nodeDN eq "" || $nodeDN eq "0" ) {
