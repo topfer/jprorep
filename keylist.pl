@@ -16,8 +16,6 @@ if ( ! defined $currentBase || $currentBase eq "" || $currentBase eq "0" ) {
     $currentBase = $rootDN;
 }
 
-#my $msg = $ldap->search(base => $currentBase, scope => one, filter => "(|(objectclass=propertyObject)(objectclass=alias))", attrs => '*');
-
 $currentBase = substr($currentBase,0,rindex($currentBase, $rootDN) - 1);
 my $counter = 10;
 my $nextNodeStart = 0;
@@ -25,18 +23,19 @@ my $nextNodeStart = 0;
 my $keySearchFilter;
 
 sub getContainerLevelKeys {
-    my $keyList = $ldap->search(base => $_[0], scope => one, filter => $keySearchFilter, attrs => '*');
-    #print CGILOG "Container DN : $_[0]\n";
+    my ($currentRoot, $commentprefix, $commentpostfix) = @_;
+
+    my $keyList = $ldap->search(base => $currentRoot, scope => one, filter => $keySearchFilter, attrs => '*');
+    if ( param("includeContainerComment") == 1 ) {
+        my $containerObj = getLDAPEntry($currentRoot);
+        print "\n".$commentprefix.$containerObj->get_value("description").$commentpostfix."\n";        
+    }
     return $keyList;
 }
 
 sub generateInheritedKeys {
 
-    $prefix = $_[0];
-    $delimiter = $_[1];
-    $postfix = $_[2];
-    $commentprefix = $_[3];
-    $commentpostfix = $_[4];
+    my ($prefix, $delimiter, $postfix, $commentprefix, $commentpostfix) = @_;
 
     my ($keyName, $keyValue);
 
@@ -55,14 +54,14 @@ sub generateInheritedKeys {
             $keyPrefix = $keyPrefix.".";
         }
 
-        my $myLevelKeys = &getContainerLevelKeys($tempoStr.",".$rootDN);
+        my $myLevelKeys = &getContainerLevelKeys($tempoStr.",".$rootDN, $commentprefix, $commentpostfix);
 
         foreach $entry ($myLevelKeys->entries) {
             if ( $entry->get_value("objectclass") eq "alias" ) {
                 $entry = getLDAPEntry($entry->get_value("aliasedObjectName"));
             }
             
-            if ( param("includePropertyComment") eq "1" ) {
+            if ( param("includePropertyComment") == 1 ) {
                 print "\n".$commentprefix.$entry->get_value("description").$commentpostfix."\n";
             }
 
@@ -86,8 +85,6 @@ if ( param("predicate") eq "export" ) {
         my $myCurrTime = &printCurrTime;
         #print "Content-Type:application/x-download\r\n\r\n";
         print "Content-Disposition:attachment;filename=settings_".$myCurrTime.".properties\r\n\r\n";  
-        #print "Content-Type:application/x-download\r\n\r\n";  
-        #print "Content-Disposition:attachment;filename=toto.txt\r\n\r\n";  
         &generateInheritedKeys("","=","\n","#","");
     } elsif ( param("exportType") eq "html" ) { 
         #print CGILOG "exportType : html\n";
