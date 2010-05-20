@@ -198,7 +198,7 @@
 					EV.stopPropagation();
 					// return false; // commented out because you might want to do something in your own callback
 				},
-                onmove : function(NODE,REF_NODE,TYPE,TREE_OBJ,RB) { 
+                beforemove : function(NODE,REF_NODE,TYPE,TREE_OBJ,RB) { 
 					var opts = $.extend(true, {}, $.tree.plugins.arcorectxmenu.defaults, TREE_OBJ.settings.plugins.arcorectxmenu);
 					NODE = $(NODE);
 					if(NODE.size() == 0) return;
