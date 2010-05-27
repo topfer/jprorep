@@ -85,6 +85,8 @@ function updateJSTree( updateJSTreeAction ) {
         if ( updateJSTreeAction === "add") {
             if ( objClassValue === "propertyObject") { 
                 currentJSTree.create({ attributes : { 'class' : 'leaf', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle, icon : 'icons/key-icon.png'} }, currentJSTreeNode, "inside");
+            } else if ( updateJSTreeAction === "link") {
+                currentJSTree.create({ attributes : { 'class' : 'link', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle, icon : 'icons/link.png'} }, currentJSTreeNode, "inside");
             } else {
                 //debugObject(currentJSTreeNode[0]);
                 //currentJSTree.create(false, currentJSTree.get_node(currentJSTreeNode));

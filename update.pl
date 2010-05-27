@@ -96,16 +96,12 @@ if ( param("predicate") eq "create") {
     $currentCN = substr(param("nodeDN"), 0, index(param("nodeDN"), ','));
     $actualDN = $currentCN.','.$containingDN;
     
-#     print CGILOG "Drop container : $containingDN\n";
-#     print CGILOG "CN : $currentCN\n";
-#     print CGILOG "Real DN : $actualDN\n";
-
     push(@translationList, "objectclass", "alias");
     push(@translationList, "objectclass", "extensibleObject");
     push(@translationList, "aliasedObjectName", param("nodeDN"));
 
     $result = $ldap->add($actualDN, attr => \@translationList);
-    $updateJSTree = "&updateJSTree=add";
+    $updateJSTree = "&updateJSTree=link";
 
 } elsif ( param("predicate") eq "copy") {
 
