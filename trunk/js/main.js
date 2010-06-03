@@ -75,7 +75,7 @@ function setDetailsControlForm() {
     }
 }
 
-function updateJSTree( updateJSTreeAction ) {
+function updateJSTree( updateJSTreeAction ) {    
     //alert("jstreeAction : _" + updateJSTreeAction + "_");
     //var updateJSTreeAction = top.details.document.forms.nodeForm.elements.updateJSTree;
     if ( updateJSTreeAction && updateJSTreeAction.value != "" ) {
@@ -85,8 +85,6 @@ function updateJSTree( updateJSTreeAction ) {
         if ( updateJSTreeAction === "add") {
             if ( objClassValue === "propertyObject") { 
                 currentJSTree.create({ attributes : { 'class' : 'leaf', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle, icon : 'icons/key-icon.png'} }, currentJSTreeNode, "inside");
-            } else if ( updateJSTreeAction === "link") {
-                currentJSTree.create({ attributes : { 'class' : 'link', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle, icon : 'icons/link.png'} }, currentJSTreeNode, "inside");
             } else {
                 //debugObject(currentJSTreeNode[0]);
                 //currentJSTree.create(false, currentJSTree.get_node(currentJSTreeNode));
@@ -94,6 +92,11 @@ function updateJSTree( updateJSTreeAction ) {
                 
                 //currentJSTree.open_branch(currentJSTreeNode);
             }
+        } else if ( updateJSTreeAction === "link") {
+            currentJSTree = top.navigation.jQuery.tree.plugins.arcorectxmenu.privdata.TREE_OBJ;
+            currentJSTreeNode = top.navigation.jQuery.tree.plugins.arcorectxmenu.privdata.REF_NODE;
+            type = top.navigation.jQuery.tree.plugins.arcorectxmenu.privdata.TYPE;
+            currentJSTree.create({ attributes : { 'class' : 'link', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle, icon : 'icons/link.png'} }, currentJSTreeNode, type);
         }
         currentJSTree.get_node(currentJSTreeNode).removeClass('leaf');
 
@@ -102,7 +105,7 @@ function updateJSTree( updateJSTreeAction ) {
 }
 
 function selectLDAPObjType(objClassValue) {
-
+  
     selectLDAPEntryForm(objClassValue);
 
     setDetailsControlForm();

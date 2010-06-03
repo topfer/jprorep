@@ -7,8 +7,14 @@
 				NODE : false,
                 REF_NODE : false,
                 TYPE : false,
-				r : false                    
+				r : false
 			},
+			privdata : {
+                TREE_OBJ : false,
+                NODE : false,
+                REF_NODE : false,
+                TYPE : false
+			},            
 			defaults : {
 				class_name : "hover",
 				items_rgtclick : {
@@ -177,9 +183,7 @@
                 },
 				onrgtclk : function (NODE, TREE_OBJ, EV) {
 					var opts = $.extend(true, {}, $.tree.plugins.arcorectxmenu.defaults, TREE_OBJ.settings.plugins.arcorectxmenu);
-                    //alert("Node_dbg_01 : " + NODE);
 					NODE = $(NODE);
-                    //alert("Node_dbg_02 : " + NODE);
 					if(NODE.size() == 0) return;
 					$.tree.plugins.arcorectxmenu.data.TREE_OBJ = TREE_OBJ;
 					if(!NODE.children("a:eq(0)").hasClass("clicked")) {
@@ -198,6 +202,9 @@
 					EV.stopPropagation();
 					// return false; // commented out because you might want to do something in your own callback
 				},
+//                 beforemove : function(NODE,REF_NODE,TYPE,TREE_OBJ,RB) {alert("beforemove");return false},
+//                 onmove : function(NODE,REF_NODE,TYPE,TREE_OBJ,RB) {alert("onmove");return true},
+//                 ondrop : function(NODE,REF_NODE,TYPE,TREE_OBJ) {alert("ondrop");return true},                
                 beforemove : function(NODE,REF_NODE,TYPE,TREE_OBJ,RB) { 
 					var opts = $.extend(true, {}, $.tree.plugins.arcorectxmenu.defaults, TREE_OBJ.settings.plugins.arcorectxmenu);
 					NODE = $(NODE);
@@ -214,11 +221,18 @@
 					}
 
                     REF_NODE = $(REF_NODE);
+
+                    $.tree.plugins.arcorectxmenu.privdata.NODE = NODE;
+                    $.tree.plugins.arcorectxmenu.privdata.TREE_OBJ = TREE_OBJ;
+                    $.tree.plugins.arcorectxmenu.privdata.REF_NODE = REF_NODE;
+                    $.tree.plugins.arcorectxmenu.privdata.TYPE = TYPE;
+
                     $.tree.plugins.arcorectxmenu.data.REF_NODE = REF_NODE;
                     $.tree.plugins.arcorectxmenu.data.TYPE = TYPE;
 
                     $.tree.plugins.arcorectxmenu.defaults.items = $.tree.plugins.arcorectxmenu.defaults.items_dragndrop;
 					$.tree.plugins.arcorectxmenu.show(NODE, TREE_OBJ);
+                    return false;
                 },
 				onchange : function () { $.tree.plugins.arcorectxmenu.hide(); },
 				beforedata : function () { $.tree.plugins.arcorectxmenu.hide(); },
