@@ -7,13 +7,14 @@
 				NODE : false,
                 REF_NODE : false,
                 TYPE : false,
-				r : false
+				RB : false
 			},
 			privdata : {
                 TREE_OBJ : false,
                 NODE : false,
                 REF_NODE : false,
-                TYPE : false
+                TYPE : false,
+                CN : false
 			},            
 			defaults : {
 				class_name : "hover",
@@ -155,7 +156,7 @@
 			hide : function () {
 				if(!$.tree.plugins.arcorectxmenu.data.TREE_OBJ) return;
 				var opts = $.extend(true, {}, $.tree.plugins.arcorectxmenu.defaults, $.tree.plugins.arcorectxmenu.data.TREE_OBJ.settings.plugins.arcorectxmenu);
-				if($.tree.plugins.arcorectxmenu.data.r && $.tree.plugins.arcorectxmenu.data.NODE) {
+				if($.tree.plugins.arcorectxmenu.data.RB && $.tree.plugins.arcorectxmenu.data.NODE) {
 					$.tree.plugins.arcorectxmenu.data.NODE.children("a, span").removeClass(opts.class_name);
 				}
 				$.tree.plugins.arcorectxmenu.data = { a : false, r : false, t : false };
@@ -188,12 +189,12 @@
 					$.tree.plugins.arcorectxmenu.data.TREE_OBJ = TREE_OBJ;
 					if(!NODE.children("a:eq(0)").hasClass("clicked")) {
 						$.tree.plugins.arcorectxmenu.data.NODE = NODE;
-						$.tree.plugins.arcorectxmenu.data.r = true;
+						$.tree.plugins.arcorectxmenu.data.RB = true;
 						NODE.children("a").addClass(opts.class_name);
 						EV.target.blur();
 					}
 					else { 
-						$.tree.plugins.arcorectxmenu.data.r = false; 
+						$.tree.plugins.arcorectxmenu.data.RB = false; 
 						$.tree.plugins.arcorectxmenu.data.NODE = (TREE_OBJ.selected_arr && TREE_OBJ.selected_arr.length > 1) ? TREE_OBJ.selected_arr : TREE_OBJ.selected;
 					}
                     $.tree.plugins.arcorectxmenu.defaults.items = $.tree.plugins.arcorectxmenu.defaults.items_rgtclick;
@@ -212,11 +213,11 @@
 					$.tree.plugins.arcorectxmenu.data.TREE_OBJ = TREE_OBJ;
 					if(!NODE.children("a:eq(0)").hasClass("clicked")) {
 						$.tree.plugins.arcorectxmenu.data.NODE = NODE;
-						$.tree.plugins.arcorectxmenu.data.r = true;
+						$.tree.plugins.arcorectxmenu.data.RB = true;
 						NODE.children("a").addClass(opts.class_name);
 					}
 					else { 
-						$.tree.plugins.arcorectxmenu.data.r = false; 
+						$.tree.plugins.arcorectxmenu.data.RB = false; 
 						$.tree.plugins.arcorectxmenu.data.NODE = (TREE_OBJ.selected_arr && TREE_OBJ.selected_arr.length > 1) ? TREE_OBJ.selected_arr : TREE_OBJ.selected;
 					}
 
