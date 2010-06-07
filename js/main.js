@@ -2,7 +2,11 @@ var currentJSTree;
 var currentJSTreeNode;
 var currentJSTreeAction;
 
+/*
+ * Returns string with all the input names and values of the selected form
+ */
 function debugForm(actForm) {
+
     var str = "action : " + actForm.action + "\n";
 
     str += "name : " + actForm.name + "\n";
@@ -15,16 +19,20 @@ function debugForm(actForm) {
 }
 
 function editFunc(actValue) {
+
     var nodeForm = top.details.document.forms.nodeForm;
+
     nodeForm.elements.predicate.value="edit";
     nodeForm.submit();
 }
 
-function removeName(el, name) {
+/*
+ * Removes the given class name from the element's className property.
+ */
+function removeClassName(el, name) {
 
   var i, curList, newList;
 
-  // Remove the given class name from the element's className property.
   newList = new Array();
   curList = el.className.split(" ");
   for (i = 0; i < curList.length; i++)
@@ -33,12 +41,23 @@ function removeName(el, name) {
   el.className = newList.join(" ");
 }
 
+/*
+ * As name suggestsm restets controlls of the controls form to a default state
+ */
 function resetControls() {
     detailsControlForm = top.details.document.forms.detailsControlForm;
     detailsControlForm.elements.edit.checked = '';
     detailsControlForm.elements.save.disabled= 'true';
 }
 
+/*
+ * Selects the value of the LDAP object type selection control of the currently visible LDAP object details form
+ *
+ * This action is necessary because in order for a user to jump from on LDAP type to the other
+ * it has to select a different object type in the selection control. This function makes sure
+ * than whenever the user return to the current form the correct LDAP object type is selected
+ * in the form
+ */
 function selectOptionForValue(selectionControl, objClassValue) {
     if ( selectionControl && selectionControl.options)
         for(i=0;i<selectionControl.options.length;i++)
@@ -46,6 +65,9 @@ function selectOptionForValue(selectionControl, objClassValue) {
                 selectionControl.options[i].selected = 'true';
 }
 
+/*
+ * Reveals input form corresponding to the selected object type (Hides all the other)
+ */
 function selectLDAPEntryForm(objClassValue) {
     //get list of currently visible divs (normally there should be just one)
     var completeVisibleList = top.details.detailsMainFrame.document.getElementsByClassName("ldapEntryEditVisible");
@@ -75,6 +97,9 @@ function setDetailsControlForm() {
     }
 }
 
+/*
+ * Updates JSTree in tle left navigation pane (mainly adds objects to it)
+ */
 function updateJSTree( updateJSTreeAction ) {    
     //alert("jstreeAction : _" + updateJSTreeAction + "_");
     //var updateJSTreeAction = top.details.document.forms.nodeForm.elements.updateJSTree;
@@ -86,11 +111,7 @@ function updateJSTree( updateJSTreeAction ) {
             if ( objClassValue === "propertyObject") { 
                 currentJSTree.create({ attributes : { 'class' : 'leaf', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle, icon : 'icons/key-icon.png'} }, currentJSTreeNode, "inside");
             } else {
-                //debugObject(currentJSTreeNode[0]);
-                //currentJSTree.create(false, currentJSTree.get_node(currentJSTreeNode));
-                currentJSTree.create({ attributes : { 'class' : 'closed', 'state' : 'closed', 'id' : nodeID }, data: { title : nodeTitle } }, currentJSTreeNode, "inside");                
-                
-                //currentJSTree.open_branch(currentJSTreeNode);
+                currentJSTree.create({ attributes : { 'class' : 'closed', 'state' : 'closed', 'id' : nodeID }, data: { title : nodeTitle } }, currentJSTreeNode, "inside");
             }
         } else if ( updateJSTreeAction === "link") {
             currentJSTree = top.navigation.jQuery.tree.plugins.arcorectxmenu.privdata.TREE_OBJ;
@@ -121,11 +142,17 @@ function commitLDAPEntryChange() {
     ldapEntryForm.submit();
 }
 
+/*
+ * Main function that initiates a tab change
+ */
 function callTab(tabName) {
     callDefaultTabAction(tabName);
     activateTab(tabName);
 }
 
+/*
+ * Resubmits http request according to the currently selected tab
+ */
 function callDefaultTabAction(tabName) {
     // Exit if no frame name was given.
     if (tabName == null)
@@ -137,6 +164,9 @@ function callDefaultTabAction(tabName) {
     nodeForm.submit();
 }
 
+/*
+ * Highlights the active tab (based on frame name that's being loaded)
+ */
 function activateTab(tabName) {
     // Check all links
     var elList = top.details.document.getElementsByTagName("a");
@@ -149,7 +179,7 @@ function activateTab(tabName) {
             elList[i].blur();
         }
         else
-            removeName(elList[i], "activeTab");
+            removeClassName(elList[i], "activeTab");
 
     // Check all control bars
     elList = top.details.document.getElementsByClassName("controlBar");
@@ -163,6 +193,9 @@ function activateTab(tabName) {
             elList[i].style.visibility = "hidden";
 }
 
+/*
+ * Saves the status of on checkbox
+ */
 function saveExportSettingsCheckbox(srcEl, trgEl) {
     if ( srcEl.checked == 1 ) {
         trgEl.value = 1;
@@ -171,6 +204,9 @@ function saveExportSettingsCheckbox(srcEl, trgEl) {
     }
 }
 
+/*
+ * Sets checkbox status according to a value
+ */
 function loadExportSettingsCheckbox(srcEl, trgEl) {
     if ( srcEl.value == 1 ) {
         trgEl.setAttribute("checked", "1");
@@ -179,6 +215,9 @@ function loadExportSettingsCheckbox(srcEl, trgEl) {
     }
 }
 
+/*
+ * Save export settings
+ */
 function saveExportSettings(sourceForm, targetForm) {
     saveExportSettingsCheckbox(sourceForm.elements.includeContainerComment, targetForm.elements.includeContainerComment);
     saveExportSettingsCheckbox(sourceForm.elements.includePropertyComment, targetForm.elements.includePropertyComment);
@@ -188,6 +227,9 @@ function saveExportSettings(sourceForm, targetForm) {
     targetForm.elements.prefixKeysSeparator.value = sourceForm.elements.prefixKeysSeparator.value;
 }
 
+/*
+ * Load export settings
+ */
 function loadExportSettings(sourceForm, targetForm) {
     loadExportSettingsCheckbox(sourceForm.elements.includeContainerComment, targetForm.elements.includeContainerComment);
     loadExportSettingsCheckbox(sourceForm.elements.includePropertyComment, targetForm.elements.includePropertyComment);
@@ -197,6 +239,9 @@ function loadExportSettings(sourceForm, targetForm) {
     targetForm.elements.prefixKeysSeparator.value = sourceForm.elements.prefixKeysSeparator.value;
 }
 
+/*
+ * Generate export request based on curent settings
+ */
 function exportRequest(exportType) {
     var nodeForm = top.details.document.forms.nodeForm;
     var extractForm = top.details.document.forms.extractForm;
