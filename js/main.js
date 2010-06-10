@@ -1,6 +1,6 @@
-var currentJSTree;
-var currentJSTreeNode;
-var currentJSTreeAction;
+// var currentJSTree;
+// var currentJSTreeNode;
+// var currentJSTreeAction;
 
 /*
  * Returns string with all the input names and values of the selected form
@@ -98,9 +98,46 @@ function setDetailsControlForm() {
 }
 
 /*
- * Updates JSTree in tle left navigation pane (mainly adds objects to it)
+ * Updates JSTree in tle left navigation pane
  */
-function updateJSTree( updateJSTreeAction ) {    
+function updateJSTree( updateJSTreeAction ) {
+    //alert("JSTreeAction : " + updateJSTreeAction);
+
+    var objClassValue, nodeTitle, nodeId;
+
+    if ( top.details.document.forms.nodeForm ) {
+        objClassValue = top.details.document.forms.nodeForm.elements.objectClass.value;
+    }
+
+    if ( objClassValue && objClassValue != "" ) {
+        nodeTitle = top.details.detailsMainFrame.document.forms[objClassValue].elements.cn.value;
+        nodeID = top.details.detailsMainFrame.document.forms[objClassValue].elements.nodeDN.value;
+    }
+
+    var actionData = top.navigation.jQuery.tree.plugins.arcorectxmenu.privdata;
+    
+    switch ( updateJSTreeAction ) {
+
+    case "create" :
+        if ( objClassValue === "propertyObject") { 
+            actionData.TREE_OBJ.create({ attributes : { 'class' : 'leaf', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle, icon : 'icons/key-icon.png'} }, actionData.REF_NODE, actionData.TYPE);
+        } else {
+            actionData.TREE_OBJ.create({ attributes : { 'class' : 'leaf', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle } }, actionData.REF_NODE, actionData.TYPE);
+        }
+        
+        break;
+
+    case "link" :
+        actionData.TREE_OBJ.create({ attributes : { 'class' : 'link', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle, icon : 'icons/link.png'} }, actionData.REF_NODE, actionData.TYPE);
+        break;
+
+    case "remove" :
+        actionData.TREE_OBJ.remove(actionData.NODE);
+        break;
+    }
+}
+
+function _disabled__updateJSTree( updateJSTreeAction ) {    
     //alert("jstreeAction : _" + updateJSTreeAction + "_");
     //var updateJSTreeAction = top.details.document.forms.nodeForm.elements.updateJSTree;
     if ( updateJSTreeAction && updateJSTreeAction.value != "" ) {
