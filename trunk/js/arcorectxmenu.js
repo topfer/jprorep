@@ -14,7 +14,7 @@
                 NODE : false,
                 REF_NODE : false,
                 TYPE : false,
-                CN : false
+                ACTION : false
 			},            
 			defaults : {
 				class_name : "hover",
@@ -28,14 +28,23 @@
                             else
                                 return 0;
                         },                          
-                        action	: function (NODE, TREE_OBJ) { 
+                        action	: function (NODE, TREE_OBJ) {
+                            //save reference to the current objects for the callback function that is to be called after a successful LDAP action
+                            $.tree.plugins.arcorectxmenu.privdata.NODE = NODE;
+                            $.tree.plugins.arcorectxmenu.privdata.TREE_OBJ = TREE_OBJ;
+                            $.tree.plugins.arcorectxmenu.privdata.REF_NODE = NODE;
+                            $.tree.plugins.arcorectxmenu.privdata.TYPE = "inside";
+                            $.tree.plugins.arcorectxmenu.privdata.ACTION = "create";
+
+                            //call LDAP action
                             var ndForm = top.details.document.forms.nodeForm;
                             ndForm.action = "details.pl";
                             ndForm.elements.nodeDN.value=$(NODE).attr("id");
                             ndForm.elements.predicate.value = "create";
                             ndForm.submit();
-                            top.currentJSTree = TREE_OBJ;
-                            top.currentJSTreeNode = NODE;
+
+                            //top.currentJSTree = TREE_OBJ;
+                            //top.currentJSTreeNode = NODE;
                             return false;
                         },
                         separator_after : true
@@ -43,12 +52,16 @@
 					edit : {
 						label	: "Edit", 
 						icon	: "edit",
-                        action	: function (NODE, TREE_OBJ) { 
+                        action	: function (NODE, TREE_OBJ) {
+                            //nothing to update in the jstree so no variable needs to be saved for the callback
+                            
+                            //call LDAP action
                             var ndForm = top.details.document.forms.nodeForm;
                             ndForm.action = "details.pl";
                             ndForm.elements.nodeDN.value=$(NODE).attr("id");
                             ndForm.elements.predicate.value = "edit";
                             ndForm.submit();
+
                             return false;
                         },
                         separator_after : true
@@ -78,12 +91,22 @@
 						label	: "Remove",
 						icon	: "remove",
                         action	: function (NODE, TREE_OBJ) { 
+                            //save reference to the current objects for the callback function that is to be called after a successful LDAP action
+                            $.tree.plugins.arcorectxmenu.privdata.NODE = NODE;
+                            $.tree.plugins.arcorectxmenu.privdata.TREE_OBJ = TREE_OBJ;
+                            $.tree.plugins.arcorectxmenu.privdata.REF_NODE = false;
+                            $.tree.plugins.arcorectxmenu.privdata.TYPE = false;
+                            $.tree.plugins.arcorectxmenu.privdata.ACTION = "remove";
+
+                            //call LDAP action
                             var ndForm = top.details.document.forms.nodeForm;
                             ndForm.action = "update.pl";
                             ndForm.elements.nodeDN.value=$(NODE).attr("id");
-                            ndForm.elements.predicate.value = "delete";
+                            ndForm.elements.predicate.value = "remove";
                             ndForm.submit();
-                            $.each(NODE, function () { TREE_OBJ.remove(this); });
+
+                            //$.each(NODE, function () { TREE_OBJ.remove(this); });
+                            return false;
                         }
 					}
 				},
@@ -92,6 +115,14 @@
 						label	: "Copy", 
 						icon	: "copy",
                         action	: function (NODE, TREE_OBJ, REF_NODE, TYPE) {
+                            //save reference to the current objects for the callback function that is to be called after a successful LDAP action
+                            $.tree.plugins.arcorectxmenu.privdata.NODE = NODE;
+                            $.tree.plugins.arcorectxmenu.privdata.TREE_OBJ = TREE_OBJ;
+                            $.tree.plugins.arcorectxmenu.privdata.REF_NODE = REF_NODE;
+                            $.tree.plugins.arcorectxmenu.privdata.TYPE = TYPE;
+                            $.tree.plugins.arcorectxmenu.privdata.ACTION = "copy";
+
+                            //call LDAP action                            
                             var ndForm = top.details.document.forms.nodeForm;
                             ndForm.action = "update.pl";
                             ndForm.elements.nodeDN.value=$(NODE).attr("id");
@@ -99,6 +130,8 @@
                             ndForm.elements.nodePosType.value=TYPE;
                             ndForm.elements.predicate.value = "copy";
                             ndForm.submit();
+
+                            return false;
                         }
 					},
 					move : {
@@ -110,6 +143,14 @@
 						label	: "Link", 
 						icon	: "link",
                         action	: function (NODE, TREE_OBJ, REF_NODE, TYPE) {
+                            //save reference to the current objects for the callback function that is to be called after a successful LDAP action
+                            $.tree.plugins.arcorectxmenu.privdata.NODE = NODE;
+                            $.tree.plugins.arcorectxmenu.privdata.TREE_OBJ = TREE_OBJ;
+                            $.tree.plugins.arcorectxmenu.privdata.REF_NODE = REF_NODE;
+                            $.tree.plugins.arcorectxmenu.privdata.TYPE = TYPE;
+                            $.tree.plugins.arcorectxmenu.privdata.ACTION = "link";
+
+                            //call LDAP action
                             var ndForm = top.details.document.forms.nodeForm;
                             ndForm.action = "update.pl";
                             ndForm.elements.nodeDN.value=$(NODE).attr("id");
@@ -117,6 +158,8 @@
                             ndForm.elements.nodePosType.value=TYPE;
                             ndForm.elements.predicate.value = "link";
                             ndForm.submit();
+
+                            return false;
                         }
 					}
 				}                   
