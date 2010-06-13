@@ -109,7 +109,7 @@ function updateJSTree( updateJSTreeAction ) {
         objClassValue = top.details.document.forms.nodeForm.elements.objectClass.value;
     }
 
-    if ( objClassValue && objClassValue != "" ) {
+    if ( objClassValue && objClassValue != "" && top.details.detailsMainFrame.document.forms[objClassValue] ) {
         nodeTitle = top.details.detailsMainFrame.document.forms[objClassValue].elements.cn.value;
         nodeID = top.details.detailsMainFrame.document.forms[objClassValue].elements.nodeDN.value;
     }
