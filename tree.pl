@@ -2,7 +2,7 @@
 use Net::LDAP;
 use CGI qw(:standard escapeHTML);
 
-#open(CGILOG, ">> /tmp/cgi.log");
+open(CGILOG, ">> /tmp/cgi.log");
 
 $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
@@ -22,8 +22,16 @@ print "<root>";
 if ( $msg->count(  ) > 0 ) {
 
     foreach $entry ( $msg->all_entries(  ) ) {
+        my $entryState;
         if ( $entry->get_value("objectClass") eq "propertyContainer" ) {
-            print "<item id='".$entry->dn(  )."' class='container' state='closed'><content><name>".$entry->get_value("cn")."</name></content></item>";
+            $entryState = "leaf";
+            my $childrenCount = $entry->get_value( "childrenCount" );
+            #print CGILOG $entry->dn(  )." : ".$childrenCount."\n";
+            if ( $entry->get_value("childrenCount") && $entry->get_value("childrenCount") > 0) {
+                $entryState = "closed";
+            }
+            print "<item id='".$entry->dn(  )."' class='container' state='".$entryState."'><content><name>".$entry->get_value("cn")."</name></content></item>";
+            #print "<item id='".$entry->dn(  )."' class='container' state='closed'><content><name>".$entry->get_value("cn")."</name></content></item>";
         } elsif ( $entry->get_value("objectClass") eq "alias" ) {
             print "<item id='".$entry->dn(  )."' class='link' state='leaf'><content><name icon='icons/link.png'>".$entry->get_value("cn")."</name></content></item>";
         } else {

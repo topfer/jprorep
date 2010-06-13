@@ -9,8 +9,9 @@ require "base.pl";
 
 my ($actualDN, $updateJSTree);
 
-#open(CGILOG, ">> /tmp/cgi.log");
+open(CGILOG, ">> /tmp/cgi.log");
 
+#creates a "(key1, value, key2, value2)" like list that i slater used to update LDAP entries 
 sub createListfromCGIParams {
     my (@replaceList, $srcListRef);
 
@@ -29,6 +30,7 @@ sub createListfromCGIParams {
     return \@replaceList;
 }
 
+#creates a "(key1, value, key2, value2)" like list that i slater used to update LDAP entries 
 sub createParamListByCopy {
 
     my (@replaceList, $sourceDN, $sourceEntry, $attrList);
@@ -69,6 +71,23 @@ sub LDAPmodifyUsingList {
    return $result;
 }
 
+sub setContainerChildCount {
+    my ($parentDN, $step) = @_;
+
+    my $parentEntry = &getLDAPEntry($parentDN);
+    my $childrenCount = $parentEntry->get_value( "childrenCount" );            
+
+    if ( ! $childrenCount ) {
+        $childrenCount = 0;
+    }
+
+    @paramList = ("childrenCount", $childrenCount + $step);
+
+    $result = $ldap->modify($parentDN, changes => [ replace => [ @paramList ] ]);
+
+    return $result;
+}
+
 $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
 $result = $ldap->bind("cn=Manager,dc=arcore,dc=amadeus,dc=com", password => "secret");
@@ -78,6 +97,7 @@ die $result->error(  ) if $result->code(  );
 switch ( param("predicate") ) {
 
     case "create" {
+        my $parentDN = param("nodeDN");
         $actualDN = "cn=".param("cn").",".param("nodeDN");
 
         my $translationList = &createListfromCGIParams();
@@ -85,6 +105,12 @@ switch ( param("predicate") ) {
         push(@$translationList, "objectclass", param("objectClass"));
 
         $result = $ldap->add($actualDN, attr => $translationList);
+
+        #if creation was successul increment child count of the parent
+        if ( !$result->code ) {
+            $result = &setContainerChildCount($parentDN, 1);
+        }
+        
         $updateJSTree = "&updateJSTree=create&objectType=".param("objectClass");
     }
 
@@ -140,7 +166,15 @@ switch ( param("predicate") ) {
     }
 
     case "remove" {    
-        $result = $ldap->delete(param("nodeDN"));
+        my $myNodeDN = param("nodeDN");
+        $result = $ldap->delete($myNodeDN);
+
+        #if removal was successul decrement child count of the parent
+        if ( !$result->code ) {
+            my $parentDN = substr($myNodeDN, index($myNodeDN, ',') + 1);
+            $result = &setContainerChildCount($parentDN, -1);
+        }
+
         $updateJSTree = "&updateJSTree=remove";
     }
 
@@ -161,72 +195,6 @@ switch ( param("predicate") ) {
         
     }
 }
-
-# if ( param("predicate") eq "create") {
-
-#     $actualDN = "cn=".param("cn").",".param("nodeDN");
-
-#     my $translationList = &createListfromCGIParams();
-
-#     push(@$translationList, "objectclass", param("objectClass"));
-
-#     $result = $ldap->add($actualDN, attr => $translationList);
-#     $updateJSTree = "&updateJSTree=add";
-
-# } elsif ( param("predicate") eq "link") {
-
-#     my ($containingDN, $currentCN, @translationList);
-
-#     if ( param("nodePosType") eq "inside" ) {
-#         $containingDN = param("refnodeDN");
-#     } else {
-#         $containingDN = substr(param("refnodeDN"), index(param("refnodeDN"),',') + 1);
-#     }    
-
-#     $currentCN = substr(param("nodeDN"), 0, index(param("nodeDN"), ','));
-#     $actualDN = $currentCN.','.$containingDN;
-    
-#     push(@translationList, "objectclass", "alias");
-#     push(@translationList, "objectclass", "extensibleObject");
-#     push(@translationList, "aliasedObjectName", param("nodeDN"));
-
-#     $result = $ldap->add($actualDN, attr => \@translationList);
-#     $updateJSTree = "&updateJSTree=link";
-
-# } elsif ( param("predicate") eq "copy") {
-
-#     my ($sourceEntry, $attrList, $containingDN, $currentCN, $translationListRef);
-
-#     if ( param("nodePosType") eq "inside" ) {
-#         $containingDN = param("refnodeDN");
-#     } else {
-#         $containingDN = substr(param("refnodeDN"), index(param("refnodeDN"),',') + 1);
-#     }    
-
-#     $currentCN = substr(param("nodeDN"), 0, index(param("nodeDN"), ','));
-#     $actualDN = $currentCN.','.$containingDN;
-    
-#     my $translationListRef = &createParamListByCopy(param("nodeDN"));    
-
-#     push(@$translationListRef, "objectclass", "propertyObject");
-
-#     $result = $ldap->add($actualDN, attr => $translationListRef);
-#     $updateJSTree = "&updateJSTree=add";
-
-# } elsif ( param("predicate") eq "update") {
-
-#     $actualDN = param("nodeDN");
-        
-#     my $translationList = &createListfromCGIParams();
-
-#     $"='.';
-#     $result = $ldap->modify(param("nodeDN"), changes => [ replace => [ @$translationList ] ]);
-#     $updateJSTree = "&updateJSTree=modify";
-    
-# } elsif ( param("predicate") eq "delete") {    
-#     $result = $ldap->delete(param("nodeDN"));
-#     $updateJSTree = "&updateJSTree=delete";
-# }
 
 if ( $result->code ) {
     print "Content-type: text/html\r\n\r\n";

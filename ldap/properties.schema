@@ -1,0 +1,62 @@
+#1.3.6.1.4.1.42.2.27.4  propOID
+#1.3.6.1.4.1.42.2.27.39 mypropID
+#.1                     propSUBOID_1
+#.2                     propSUBOID_2
+
+attributetype ( 1.3.6.1.4.1.42.2.27.39.1.1
+	NAME 'keyName'
+	DESC 'Fully qualified name of property'
+	EQUALITY caseExactMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+	SINGLE-VALUE )
+
+attributetype ( 1.3.6.1.4.1.42.2.27.39.1.2
+	NAME 'keyValue'
+	DESC 'Value of key'
+	EQUALITY caseExactMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+	SINGLE-VALUE )
+
+attributetype ( 1.3.6.1.4.1.42.2.27.39.1.4
+	NAME 'keyType'
+	DESC 'Specifies the type for the key (FUNCTIONAL|TECHNICAL)'
+	EQUALITY caseExactMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+	SINGLE-VALUE ) 
+
+attributetype ( 1.3.6.1.4.1.42.2.27.39.1.5
+	NAME 'valueType'
+	DESC 'Specifies the domain for the value (STRING|INTEGER|BOOLEAN)'
+	EQUALITY caseExactMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+	SINGLE-VALUE ) 
+
+attributetype ( 1.3.6.1.4.1.42.2.27.39.1.10
+	NAME 'childrenCount'
+	DESC 'Keeps track of how many children a container has'
+	EQUALITY integerMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+	SINGLE-VALUE ) 
+
+attributetype ( 1.3.6.1.4.1.42.2.27.39.1.11
+	NAME 'lockOwner'
+	DESC 'Holds the DN of the operator that locked the container'
+	EQUALITY caseExactMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+	SINGLE-VALUE ) 
+
+objectclass ( 1.3.6.1.4.1.42.2.27.39.2.1
+	NAME 'propertyContainer'
+	DESC 'Container for properties'
+	SUP top
+	STRUCTURAL
+	MUST cn 
+    MAY ( description $ childrenCount $ lockOwner) )
+
+objectclass ( 1.3.6.1.4.1.42.2.27.39.2.3
+	NAME 'propertyObject'
+	DESC 'Existing property object'
+	SUP top STRUCTURAL
+	MUST cn
+    MAY ( keyName $ description $ keyValue $ keyType $ valueType ) )
+
