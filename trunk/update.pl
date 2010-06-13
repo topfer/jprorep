@@ -9,7 +9,7 @@ require "base.pl";
 
 my ($actualDN, $updateJSTree);
 
-open(CGILOG, ">> /tmp/cgi.log");
+#open(CGILOG, ">> /tmp/cgi.log");
 
 #creates a "(key1, value, key2, value2)" like list that i slater used to update LDAP entries 
 sub createListfromCGIParams {
