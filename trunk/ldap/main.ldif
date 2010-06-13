@@ -1,0 +1,57 @@
+dn: dc=arcore,dc=amadeus,dc=com
+objectclass: dcObject
+objectclass: organizationalUnit
+dc: arcore
+ou: rootobject
+
+dn: cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: mbo
+description: Mid and Back Office
+objectClass: propertyContainer
+childrenCount: 0
+
+# dn: cn=java_memory,cn=mbo,dc=arcore,dc=amadeus,dc=com
+# keyName: java_memory
+# description: JAVA memory option
+# keyValue: -XX:MaxPermSize=512m -Xms128m -Xmx768m
+# objectClass: propertyObject
+
+# dn: cn=staging,cn=mbo,dc=arcore,dc=amadeus,dc=com
+# cn: staging
+# description: QA staging environment
+# objectClass: propertyContainer
+
+# dn: cn=production,cn=mbo,dc=arcore,dc=amadeus,dc=com
+# cn: production
+# description: QA production environment
+# objectClass: propertyContainer
+
+# dn: cn=sema_ip,cn=staging,cn=mbo,dc=arcore,dc=amadeus,dc=com
+# keyName: sema_ip
+# description: IP for the SEMA database in QA staging environment
+# keyValue: 172.21.98.150
+# objectClass: propertyObject
+
+# dn: cn=sema_port,cn=staging,cn=mbo,dc=arcore,dc=amadeus,dc=com
+# keyName: sema_port
+# description: Port for the SEMA database in QA staging environment
+# keyValue: 54499
+# objectClass: propertyObject
+
+# dn: cn=sema_ip,cn=production,cn=mbo,dc=arcore,dc=amadeus,dc=com
+# keyName: sema_ip
+# description: IP for the SEMA database in QA production environment
+# keyValue: 172.21.98.150
+# objectClass: propertyObject
+
+# dn: cn=sema_port,cn=production,cn=mbo,dc=arcore,dc=amadeus,dc=com
+# keyName: sema_port
+# description: Port for the SEMA database in QA production environment
+# keyValue: 55599
+# objectClass: propertyObject
+
+# dn: cn=java_mem_alias,cn=production,cn=mbo,dc=arcore,dc=amadeus,dc=com
+# objectclass: alias
+# objectclass: extensibleObject
+# cn: java_mem_alias
+# aliasedObjectName: cn=java_memory,cn=mbo,dc=arcore,dc=amadeus,dc=com
