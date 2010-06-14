@@ -131,6 +131,12 @@ switch ( param("predicate") ) {
         push(@translationList, "aliasedObjectName", param("nodeDN"));
 
         $result = $ldap->add($actualDN, attr => \@translationList);
+
+        #if creation of link was successul increment child count of the parent
+        if ( !$result->code ) {
+            $result = &setContainerChildCount($containingDN, 1);
+        }
+
         $updateJSTree = "&updateJSTree=link";
     }
 
@@ -151,6 +157,12 @@ switch ( param("predicate") ) {
         push(@$translationListRef, "objectclass", "propertyObject");
 
         $result = $ldap->add($actualDN, attr => $translationListRef);
+
+        #if creation was successul increment child count of the parent
+        if ( !$result->code ) {
+            $result = &setContainerChildCount($containingDN, 1);
+        }
+
         $updateJSTree = "&updateJSTree=create&objectType=propertyObject";
     }
 
