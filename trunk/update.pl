@@ -166,6 +166,40 @@ switch ( param("predicate") ) {
         $updateJSTree = "&updateJSTree=create&objectType=propertyObject";
     }
 
+    case "move" {
+        my ($sourceEntry, $attrList, $containingDN, $currentCN, $translationListRef);
+
+        if ( param("nodePosType") eq "inside" ) {
+            $containingDN = param("refnodeDN");
+        } else {
+            $containingDN = substr(param("refnodeDN"), index(param("refnodeDN"),',') + 1);
+        }    
+
+        $currentCN = substr(param("nodeDN"), 0, index(param("nodeDN"), ','));
+        $actualDN = $currentCN.','.$containingDN;
+        
+        $translationListRef = &createParamListByCopy(param("nodeDN"));    
+
+        push(@$translationListRef, "objectclass", "propertyObject");
+
+        $result = $ldap->add($actualDN, attr => $translationListRef);
+
+        #if creation was successul increment child count of the parent
+        if ( !$result->code ) {
+            $result = &setContainerChildCount($containingDN, 1);
+        }
+
+        $result = $ldap->delete(param("nodeDN"));
+
+        #if removal was successul decrement child count of the parent
+        if ( !$result->code ) {
+            my $parentDN = substr(param("nodeDN"), index(param("nodeDN"), ',') + 1);
+            $result = &setContainerChildCount($parentDN, -1);
+        }
+
+        $updateJSTree = "&updateJSTree=move&objectType=propertyObject";
+    }
+
     case "update" {
         my $translationList = &createListfromCGIParams();
 

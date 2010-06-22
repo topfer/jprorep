@@ -123,8 +123,16 @@ function updateJSTree( updateJSTreeAction ) {
             actionData.TREE_OBJ.create({ attributes : { 'class' : 'leaf', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle, icon : 'icons/key-icon.png'} }, actionData.REF_NODE, actionData.TYPE);
         } else {
             actionData.TREE_OBJ.create({ attributes : { 'class' : 'leaf', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle } }, actionData.REF_NODE, actionData.TYPE);
+        }        
+        break;
+
+    case "move" :
+        if ( objClassValue === "propertyObject") { 
+            actionData.TREE_OBJ.create({ attributes : { 'class' : 'leaf', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle, icon : 'icons/key-icon.png'} }, actionData.REF_NODE, actionData.TYPE);
+        } else {
+            actionData.TREE_OBJ.create({ attributes : { 'class' : 'leaf', 'state' : 'leaf', 'id' : nodeID }, data: { title : nodeTitle } }, actionData.REF_NODE, actionData.TYPE);
         }
-        
+        actionData.TREE_OBJ.remove(actionData.NODE);
         break;
 
     case "link" :
