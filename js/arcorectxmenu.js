@@ -137,7 +137,25 @@
 					move : {
 						label	: "Move", 
 						icon	: "move",
-                        action	: function (NODE, TREE_OBJ) { alert("Move"); }
+                        action	: function (NODE, TREE_OBJ, REF_NODE, TYPE) {
+                            //save reference to the current objects for the callback function that is to be called after a successful LDAP action
+                            $.tree.plugins.arcorectxmenu.privdata.NODE = NODE;
+                            $.tree.plugins.arcorectxmenu.privdata.TREE_OBJ = TREE_OBJ;
+                            $.tree.plugins.arcorectxmenu.privdata.REF_NODE = REF_NODE;
+                            $.tree.plugins.arcorectxmenu.privdata.TYPE = TYPE;
+                            $.tree.plugins.arcorectxmenu.privdata.ACTION = "move";
+
+                            //call LDAP action
+                            var ndForm = top.details.document.forms.nodeForm;
+                            ndForm.action = "update.pl";
+                            ndForm.elements.nodeDN.value=$(NODE).attr("id");
+                            ndForm.elements.refnodeDN.value=$(REF_NODE).attr("id");
+                            ndForm.elements.nodePosType.value=TYPE;
+                            ndForm.elements.predicate.value = "move";
+                            ndForm.submit();
+
+                            return false;
+                        }
 					},
 					link : {
 						label	: "Link", 
