@@ -37,24 +37,28 @@ sub generateInheritedKeys {
 
     my ($prefix, $delimiter, $postfix, $commentprefix, $commentpostfix) = @_;
 
-    my ($keyName, $keyValue);
+    my ($keyName, $keyValue, $actCN, @cnValueArr, $levelCounter, $tempoStr, $keyPrefixStr);
+    
+    #print "Current base : $currentBase<br/>";
 
-    do {
-        my $tempoStr = substr($currentBase, $nextNodeStart);
-        my $keyPrefix;
+    @cnValueArr = split ',',$currentBase;
+    #level counter is not used currently but it could be used to limit the inheritance
+    $levelCounter = 0;
+    $tempoStr = "";
+    $keyPrefixStr = "";
+
+    do {        
+        $actCN = pop @cnValueArr;
+        $tempoStr = $actCN.",".$tempoStr;
+        #print $levelCounter." : ".$tempoStr."<br/>";
         
         if ( param("prefixKeys") == 1 ) {
-            my $t1 = $tempoStr;
-            $t1 =~ s/,cn=/./g;            
-            my $t2 = substr($t1,3);
-            my @keyPrefixArrRev = reverse split('\.', $t2);
-
-            $" = "\.";
-            $keyPrefix = join(".",@keyPrefixArrRev);
-            $keyPrefix = $keyPrefix.".";
+            $keyPrefixStr = $keyPrefixStr.substr($actCN, index($actCN, '=') + 1 ).".";
         }
-
-        my $myLevelKeys = &getContainerLevelKeys($tempoStr.",".$rootDN, $commentprefix, $commentpostfix);
+        
+        #set string that separates the elements of an array when expanded in a double quoted string
+        $"=",";
+        my $myLevelKeys = &getContainerLevelKeys($tempoStr.$rootDN, $commentprefix, $commentpostfix);
 
         foreach $entry ($myLevelKeys->entries) {
             if ( $entry->get_value("objectclass") eq "alias" ) {
@@ -65,13 +69,14 @@ sub generateInheritedKeys {
                 print "\n".$commentprefix.$entry->get_value("description").$commentpostfix."\n";
             }
 
-            $keyName = $keyPrefix.$entry->get_value("cn");
+            $keyName = $keyPrefixStr.$entry->get_value("cn");
             print $prefix.$keyName.$delimiter.$entry->get_value("keyValue").$postfix;
         }
 
         $nextNodeStart = index($currentBase, ',', $nextNodeStart + 1) + 1;
-        $counter--;
-    } until  ( $nextNodeStart == 0  || $counter < 0);
+        
+        $levelCounter++;
+    } until  ( scalar(@cnValueArr) == 0 );
 }
 
 if ( param("dereferenceLinks") eq "1" ) {
@@ -93,6 +98,7 @@ if ( param("predicate") eq "export" ) {
         print "<table border='1' width='100%'>";
         print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th></tr>";
 
+        #print "CurrentBase : ".$currentBase."<br/>";
         &generateInheritedKeys("<tr><td>","</td><td>","</td></tr>","<!--","-->");
 
         print "</table></body></html>\n";
