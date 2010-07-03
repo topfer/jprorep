@@ -11,7 +11,7 @@ my ($actualDN, $updateJSTree);
 
 #open(CGILOG, ">> /tmp/cgi.log");
 
-#creates a "(key1, value, key2, value2)" like list that i slater used to update LDAP entries 
+#creates a "(key1, value, key2, value2)" like list that is later used to update LDAP entries 
 sub createListfromCGIParams {
     my (@replaceList, $srcListRef);
 
@@ -115,7 +115,7 @@ switch ( param("predicate") ) {
     }
 
     case "link" {
-        my ($containingDN, $currentCN, @translationList);
+        my ($containingDN, $currentCN, $linkTargetEntry, $linkSources, @translationList);
 
         if ( param("nodePosType") eq "inside" ) {
             $containingDN = param("refnodeDN");
@@ -137,6 +137,18 @@ switch ( param("predicate") ) {
             $result = &setContainerChildCount($containingDN, 1);
         }
 
+        #retrieve link target
+        $linkTargetEntry = getLDAPEntry(param("nodeDN"));
+
+        #store existing link information
+        $linkSources = $linkTargetEntry->get_value("aliasingEntryName", asref => 1);
+
+        #append the link that is being created to the existing list
+        push(@$linkSources, $actualDN);
+
+        #update reference list of target object (so the target of the link knows all its referring parties)
+        $result = $ldap->modify(param("nodeDN"), replace => [ "aliasingEntryName" => $linkSources ]);
+        
         $updateJSTree = "&updateJSTree=link";
     }
 
