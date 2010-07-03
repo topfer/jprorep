@@ -38,12 +38,18 @@ attributetype ( 1.3.6.1.4.1.42.2.27.39.1.10
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
 	SINGLE-VALUE ) 
 
-attributetype ( 1.3.6.1.4.1.42.2.27.39.1.11
+attributetype ( 1.3.6.1.4.1.42.2.27.39.1.12
 	NAME 'lockOwner'
 	DESC 'Holds the DN of the operator that locked the container'
 	EQUALITY caseExactMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
 	SINGLE-VALUE ) 
+
+attributetype ( 1.3.6.1.4.1.42.2.27.39.1.14 
+    NAME 'aliasingEntryName'
+	DESC 'Distinguished name of aliasing entry'
+	EQUALITY distinguishedNameMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 )
 
 objectclass ( 1.3.6.1.4.1.42.2.27.39.2.1
 	NAME 'propertyContainer'
@@ -51,12 +57,12 @@ objectclass ( 1.3.6.1.4.1.42.2.27.39.2.1
 	SUP top
 	STRUCTURAL
 	MUST cn 
-    MAY ( description $ childrenCount $ lockOwner) )
+    MAY ( description $ childrenCount $ lockOwner ) )
 
 objectclass ( 1.3.6.1.4.1.42.2.27.39.2.3
 	NAME 'propertyObject'
 	DESC 'Existing property object'
 	SUP top STRUCTURAL
 	MUST cn
-    MAY ( keyName $ description $ keyValue $ keyType $ valueType ) )
+    MAY ( keyName $ description $ keyValue $ keyType $ valueType $ aliasingEntryName ) )
 

@@ -2,7 +2,7 @@ use POSIX qw(strftime);
 
 $containerAttrs = ["cn","description"];
 $propertyAttrs = ["cn","description","keyValue","keyType","valueType"];
-$operationalAttrs = ['entryDN','creatorsName','createTimestamp','modifiersName','modifyTimestamp','childrenCount'];
+$operationalAttrs = ['entryDN','creatorsName','createTimestamp','modifiersName','modifyTimestamp','childrenCount','aliasingEntryName'];
 my @allAttributes = ("objectClass", @$propertyAttrs, @$operationalAttrs);
 
 # associative array for the memberOf implementation
