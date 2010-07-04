@@ -19,7 +19,21 @@ childrenCount: 1
 dn: cn=object1A,cn=container1,cn=mbo,dc=arcore,dc=amadeus,dc=com
 cn: object1A
 description: container1 description
+keyValue: object1A keyValue
+keyType: object1A keyType
+valueType: object1A valueType
 objectClass: propertyObject
-#aliasingEntryName: cn=object1A,cn=container2,cn=mbo,dc=arcore,dc=amadeus,dc=com
-#aliasingEntryName: cn=object1A,cn=container3,cn=mbo,dc=arcore,dc=amadeus,dc=com
+aliasingEntryName: cn=object1A,cn=container2,cn=mbo,dc=arcore,dc=amadeus,dc=com
+
+dn: cn=container2,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: container1
+description: container1 description
+objectClass: propertyContainer
+childrenCount: 1
+
+dn: cn=object1A,cn=container2,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: object1A
+objectClass: alias
+objectClass: extensibleObject
+aliasedObjectName: cn=object1A,cn=container1,cn=mbo,dc=arcore,dc=amadeus,dc=com
 
