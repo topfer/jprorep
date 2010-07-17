@@ -87,7 +87,7 @@ if ( param("dereferenceLinks") eq "1" ) {
 
 if ( param("predicate") eq "export" ) {
     if ( param("exportType") eq "prop" ) {
-        my $myCurrTime = &printCurrTime;
+        my $myCurrTime = &printCurrTime("_");
         #print "Content-Type:application/x-download\r\n\r\n";
         print "Content-Disposition:attachment;filename=settings_".$myCurrTime.".properties\r\n\r\n";  
         &generateInheritedKeys("","=","\n","#","");

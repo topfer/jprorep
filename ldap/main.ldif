@@ -26,7 +26,7 @@ objectClass: propertyObject
 aliasingEntryName: cn=object1A,cn=container2,cn=mbo,dc=arcore,dc=amadeus,dc=com
 
 dn: cn=container2,cn=mbo,dc=arcore,dc=amadeus,dc=com
-cn: container1
+cn: container2
 description: container1 description
 objectClass: propertyContainer
 childrenCount: 1

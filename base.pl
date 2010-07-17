@@ -10,7 +10,16 @@ undef %isOperational;
 for (@$operationalAttrs) { $isOperational{$_} = 1; }
 
 sub printCurrTime() {
-        return strftime("%Y_%b_%e_%H_%M_%S", localtime);
+    my ($dateSpacer, $timeSpacer) = @_;
+
+    if ( ! defined $dateSpacer ) {
+        $dateSpacer = "/";
+        $timeSpacer = ":";
+    } else {
+        $dateSpacer = $timeSpacer = "_";
+    }
+
+    return strftime("%Y".$dateSpacer."%b".$dateSpacer."%e".$timeSpacer."%H".$timeSpacer."%M".$timeSpacer."%S", localtime);
 }
 
 sub getLDAPEntry {
@@ -23,6 +32,7 @@ sub getLDAPEntry {
     my $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
     my $msg = $ldap->search(base => $nodeDN, scope => base, filter => "(objectclass=*)", attrs => \@allAttributes );
+    #my $msg = $ldap->search(base => $nodeDN, , deref => never, scope => base, filter => "(objectclass=*)", attrs => \@allAttributes );
 
     return $msg->pop_entry();
 }
