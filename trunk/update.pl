@@ -88,7 +88,7 @@ sub setContainerChildCount {
     return $result;
 }
 
-$ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
+#$ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
 $result = $ldap->bind("cn=Manager,dc=arcore,dc=amadeus,dc=com", password => "secret");
 die $result->error(  ) if $result->code(  );

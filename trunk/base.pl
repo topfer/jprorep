@@ -5,6 +5,8 @@ $propertyAttrs = ["cn","description","keyValue","keyType","valueType"];
 $operationalAttrs = ['entryDN','creatorsName','createTimestamp','modifiersName','modifyTimestamp','childrenCount','aliasingEntryName'];
 my @allAttributes = ("objectClass", @$propertyAttrs, @$operationalAttrs);
 
+$ldap = Net::LDAP->new ("localhost", port => 5389, version => 3 );
+
 # associative array for the memberOf implementation
 undef %isOperational;
 for (@$operationalAttrs) { $isOperational{$_} = 1; }
@@ -28,8 +30,6 @@ sub getLDAPEntry {
     if ( ! defined $nodeDN || $nodeDN eq "" || $nodeDN eq "0" ) {
         $nodeDN = "dc=arcore,dc=amadeus,dc=com";
     }
-
-    my $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
     my $msg = $ldap->search(base => $nodeDN, scope => base, filter => "(objectclass=*)", attrs => \@allAttributes );
     #my $msg = $ldap->search(base => $nodeDN, , deref => never, scope => base, filter => "(objectclass=*)", attrs => \@allAttributes );
