@@ -2,9 +2,11 @@
 use Net::LDAP;
 use CGI qw(:standard escapeHTML);
 
+require "base.pl";
+
 open(CGILOG, ">> /tmp/cgi.log");
 
-$ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
+#$ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
 $currentBase = param("id");
 

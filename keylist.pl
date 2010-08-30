@@ -6,7 +6,7 @@ require "base.pl";
 
 open(CGILOG, ">> /tmp/cgi.log");
 
-my $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
+#my $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
 my $currentBase = param("nodeDN");
 my $rootDN = "dc=arcore,dc=amadeus,dc=com";
