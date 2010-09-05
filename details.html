@@ -18,6 +18,7 @@
       <input type="hidden" name="tab">
       <input type="hidden" name="predicate">
       <input type="hidden" name="exportType">
+      <input type="hidden" name="enableSettingsInheritance" value="1">
       <input type="hidden" name="includeContainerComment" value="1">
       <input type="hidden" name="includePropertyComment" value="1">
       <input type="hidden" name="dereferenceLinks" value="1">
@@ -44,8 +45,10 @@
                 <input type="button" name="save" value="Save" onclick="top.commitLDAPEntryChange()"/>
               </div>
               <div class="controlBar" id="keylist">
+                <!--
                 Enable inheritence
                 <input type="checkbox" checked="true" readonly="true" onclick="forms.nodeForm.elements.inheritance.value=checked;forms.nodeForm.submit()"/>
+                -->
                 <input type="button" name="export" value="Export" onclick="top.exportRequest('prop')"/>
               </div>
             </form>

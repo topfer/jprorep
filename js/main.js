@@ -264,6 +264,7 @@ function loadExportSettingsCheckbox(srcEl, trgEl) {
  * Save export settings
  */
 function saveExportSettings(sourceForm, targetForm) {
+    saveExportSettingsCheckbox(sourceForm.elements.enableSettingsInheritance, targetForm.elements.enableSettingsInheritance);
     saveExportSettingsCheckbox(sourceForm.elements.includeContainerComment, targetForm.elements.includeContainerComment);
     saveExportSettingsCheckbox(sourceForm.elements.includePropertyComment, targetForm.elements.includePropertyComment);
     saveExportSettingsCheckbox(sourceForm.elements.dereferenceLinks, targetForm.elements.dereferenceLinks);
@@ -276,6 +277,7 @@ function saveExportSettings(sourceForm, targetForm) {
  * Load export settings
  */
 function loadExportSettings(sourceForm, targetForm) {
+    loadExportSettingsCheckbox(sourceForm.elements.enableSettingsInheritance, targetForm.elements.enableSettingsInheritance);
     loadExportSettingsCheckbox(sourceForm.elements.includeContainerComment, targetForm.elements.includeContainerComment);
     loadExportSettingsCheckbox(sourceForm.elements.includePropertyComment, targetForm.elements.includePropertyComment);
     loadExportSettingsCheckbox(sourceForm.elements.dereferenceLinks, targetForm.elements.dereferenceLinks);

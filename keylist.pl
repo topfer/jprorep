@@ -41,7 +41,14 @@ sub generateInheritedKeys {
     
     #print "Current base : $currentBase<br/>";
 
-    @cnValueArr = split ',',$currentBase;
+    #split based on inheritance setting
+    if ( param("enableSettingsInheritance") == 1 ) {
+        #in case inheritance is set just break up the cn and follow the tree down through the branches
+        @cnValueArr = split ',',$currentBase;
+    } else {
+        #if inheritance is not enabled just the current cn as one single member of the array
+        $cnValueArr[0] = "$currentBase";
+    }
     #level counter is not used currently but it could be used to limit the inheritance
     $levelCounter = 0;
     $tempoStr = "";

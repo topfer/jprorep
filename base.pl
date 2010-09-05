@@ -5,7 +5,7 @@ $propertyAttrs = ["cn","description","keyValue","keyType","valueType"];
 $operationalAttrs = ['entryDN','creatorsName','createTimestamp','modifiersName','modifyTimestamp','childrenCount','aliasingEntryName'];
 my @allAttributes = ("objectClass", @$propertyAttrs, @$operationalAttrs);
 
-$ldap = Net::LDAP->new ("localhost", port => 5389, version => 3 );
+$ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
 # associative array for the memberOf implementation
 undef %isOperational;
