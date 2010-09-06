@@ -21,7 +21,7 @@ sub printCurrTime() {
         $dateSpacer = $timeSpacer = "_";
     }
 
-    return strftime("%Y".$dateSpacer."%b".$dateSpacer."%e".$timeSpacer."%H".$timeSpacer."%M".$timeSpacer."%S", localtime);
+    return strftime("%Y".$dateSpacer."%b".$dateSpacer."%d".$timeSpacer."%H".$timeSpacer."%M".$timeSpacer."%S", localtime);
 }
 
 sub getLDAPEntry {
