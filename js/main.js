@@ -227,7 +227,8 @@ function activateTab(tabName) {
             removeClassName(elList[i], "activeTab");
 
     // Check all control bars
-    elList = top.details.document.getElementsByClassName("controlBar");
+    //elList = top.details.document.getElementsByClassName("controlBar");
+    var elList = top.details.detailsControlForm.document.getElementsByClassName("controlBar");
 
     for (i = 0; i < elList.length; i++)
 
