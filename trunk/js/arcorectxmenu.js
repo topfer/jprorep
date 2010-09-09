@@ -41,8 +41,10 @@
                             ndForm.action = "details.pl";
                             ndForm.elements.nodeDN.value=$(NODE).attr("id");
                             ndForm.elements.predicate.value = "create";
+                            ndForm.elements.tab.value = "details";
                             ndForm.submit();
 
+                            top.activateTab('details');
                             //top.currentJSTree = TREE_OBJ;
                             //top.currentJSTreeNode = NODE;
                             return false;
@@ -60,7 +62,10 @@
                             ndForm.action = "details.pl";
                             ndForm.elements.nodeDN.value=$(NODE).attr("id");
                             ndForm.elements.predicate.value = "edit";
+                            ndForm.elements.tab.value = "details";
                             ndForm.submit();
+
+                            top.activateTab('details');
 
                             return false;
                         },
