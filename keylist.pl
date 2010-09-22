@@ -33,17 +33,35 @@ sub getContainerLevelKeys {
     return $keyList;
 }
 
+sub checkOverWrite {
+    my ($key, $keyPrefixStr, $overWrArrRef, $level) = @_;
+    my $localLevel = 0;
+    my $localKey;
+    my @tmpArr = @{$overWrArrRef};
+
+    while ( $localLevel < $level ) {
+        foreach $localKey ( keys %{ ${$overWrArrRef}[$localLevel] }) {
+            if ( ($localKey eq $key) and (${$overWrArrRef}[$localLevel]{$localKey}[2] eq "") ) {
+                ${$overWrArrRef}[$localLevel]{$localKey}[2] = $keyPrefixStr;
+            }
+        }
+        $localLevel++;
+    }
+}
+
 sub generateInheritedKeys {
 
     my ($prefix, $delimiter, $postfix, $commentprefix, $commentpostfix) = @_;
 
-    my ($keyName, $keyValue, $actCN, @cnValueArr, $levelCounter, $tempoStr, $keyPrefixStr);
+    my ($keyName, $keyValue, $containerCN, @cnValueArr, $levelCounter, $partialDN, $keyPrefixStr, @overWrArr, $actEntryCN, $actEntryDN);
+
+    my ($strikeOutPrefix, $strikeOutDelimiter, $strikeOutpostix); 
     
     #print "Current base : $currentBase<br/>";
 
     #split based on inheritance setting
     if ( param("enableSettingsInheritance") == 1 ) {
-        #in case inheritance is set just break up the cn and follow the tree down through the branches
+        #in case inheritance is set just break up the cn and follow through from top to bottom
         @cnValueArr = split ',',$currentBase;
     } else {
         #if inheritance is not enabled just the current cn as one single member of the array
@@ -51,40 +69,74 @@ sub generateInheritedKeys {
     }
     #level counter is not used currently but it could be used to limit the inheritance
     $levelCounter = 0;
-    $tempoStr = "";
+    $partialDN = $rootDN;
     $keyPrefixStr = "";
 
     do {        
-        $actCN = pop @cnValueArr;
-        $tempoStr = $actCN.",".$tempoStr;
-        #print $levelCounter." : ".$tempoStr."<br/>";
+        $containerCN = pop @cnValueArr;
+        $partialDN = $containerCN.",".$partialDN;
         
         if ( param("prefixKeys") == 1 ) {
-            $keyPrefixStr = $keyPrefixStr.substr($actCN, index($actCN, '=') + 1 ).".";
+            $keyPrefixStr = $keyPrefixStr.substr($containerCN, index($containerCN, '=') + 1 ).".";
         }
         
         #set string that separates the elements of an array when expanded in a double quoted string
         $"=",";
-        my $myLevelKeys = &getContainerLevelKeys($tempoStr.$rootDN, $commentprefix, $commentpostfix);
+        my $myLevelKeys = &getContainerLevelKeys($partialDN, $commentprefix, $commentpostfix);
 
         foreach $entry ($myLevelKeys->entries) {
+            $actEntryCN = $entry->get_value("cn");
+            
+            #print CGILOG "Key name : ".$actEntryCN."\n";
             if ( $entry->get_value("objectclass") eq "alias" ) {
                 $entry = getLDAPEntry($entry->get_value("aliasedObjectName"));
             }
             
-            if ( param("includePropertyComment") == 1 ) {
-                print "\n".$commentprefix.$entry->get_value("description").$commentpostfix."\n";
-            }
+#             if ( param("includePropertyComment") == 1 ) {
+#                 print "\n".$commentprefix.$entry->get_value("description").$commentpostfix."\n";
+#             }
 
-            $keyName = $keyPrefixStr.$entry->get_value("cn");
-            print $prefix.$keyName.$delimiter.$entry->get_value("keyValue").$postfix;
+            $keyName = $keyPrefixStr.$actEntryCN;
+            #print $prefix.$keyName.$delimiter.$entry->get_value("keyValue").$postfix;
+
+            &checkOverWrite($actEntryCN, $keyPrefixStr, \@overWrArr, $levelCounter);
+            $overWrArr[$levelCounter]{$actEntryCN} = [$actEntryCN, $keyPrefixStr, "", $entry->get_value("keyValue"), $entry->get_value("description")];
+
+            #my @tstArr = $overWrArr[$levelCounter]{$actEntryCN};
         }
 
         $nextNodeStart = index($currentBase, ',', $nextNodeStart + 1) + 1;
         
         $levelCounter++;
     } until  ( scalar(@cnValueArr) == 0 );
+
+    foreach $levelHash (@overWrArr) {
+        foreach $levelKey ( keys %$levelHash ) {
+            if ( param("includePropertyComment") == 1 ) {
+                print "\n".$commentprefix.${$levelHash}{$levelKey}[4].$commentpostfix."\n";
+            }
+            
+            if ( ${$levelHash}{$levelKey}[2] eq "" ) {
+                print $prefix.${$levelHash}{$levelKey}[1].$levelKey.$delimiter.${$levelHash}{$levelKey}[3].$postfix;
+            } else {
+                print $prefix."<strike>".${$levelHash}{$levelKey}[1].$levelKey."</strike><br/>".${$levelHash}{$levelKey}[2].$levelKey.$delimiter."<strike>".${$levelHash}{$levelKey}[3]."</strike>".$postfix;
+            }
+        }
+        $localLevel++;
+    }
+
+#     foreach $levelHash (@overWrArr) {
+#         print CGILOG "[";
+#         foreach $levelKey ( keys %$levelHash ) {
+#             print CGILOG "[",$levelKey."=[".join(",",@{ ${$levelHash}{$levelKey} })."],"
+#         }
+#         print CGILOG "]\n";
+#         $localLevel++;
+#     }
+
 }
+
+
 
 if ( param("dereferenceLinks") eq "1" ) {
     $keySearchFilter = "(|(objectclass=propertyObject)(objectclass=alias))";

@@ -11,17 +11,37 @@ $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 undef %isOperational;
 for (@$operationalAttrs) { $isOperational{$_} = 1; }
 
-sub printCurrTime() {
-    my ($dateSpacer, $timeSpacer) = @_;
+#the last two arguments are not actually used yet
+sub printCurrTime {
+    my ($dateSpacer, $timeSpacer, $dateTimeSpacer) = @_;
+
+    if ( scalar(@_) == 0 ) {
+        $dateSpacer = "/";
+        $timeSpacer = ":";
+        $dateTimeSpacer = " ";
+    } else {
+        $dateSpacer = $timeSpacer = $dateTimeSpacer = "_";
+    }
+
+    return $retStr.strftime("%Y".$dateSpacer."%b".$dateSpacer."%d".$dateTimeSpacer."%H".$timeSpacer."%M".$timeSpacer."%S", localtime);
+}
+
+sub logtime {
+    return "[".&printCurrTime()."] ";
+}
+
+sub disabled_printCurrTime() {
+    my ($dateSpacer, $timeSpacer, $dateTimeSpacer) = @_;
 
     if ( ! defined $dateSpacer ) {
         $dateSpacer = "/";
         $timeSpacer = ":";
+        $dateTimeSpacer = " ";
     } else {
-        $dateSpacer = $timeSpacer = "_";
+        $dateSpacer = $timeSpacer = $dateTimeSpacer = "_";
     }
 
-    return strftime("%Y".$dateSpacer."%b".$dateSpacer."%d".$timeSpacer."%H".$timeSpacer."%M".$timeSpacer."%S", localtime);
+    return strftime("%Y".$dateSpacer."%b".$dateSpacer."%d".$dateTimeSpacer."%H".$timeSpacer."%M".$timeSpacer."%S", localtime);
 }
 
 sub getLDAPEntry {
