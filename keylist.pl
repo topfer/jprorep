@@ -51,14 +51,23 @@ sub checkOverWrite {
 
 sub generateInheritedKeys {
 
-    my ($prefix, $delimiter, $postfix, $commentprefix, $commentpostfix) = @_;
+    my ($listType) = @_;
 
     my ($keyName, $keyValue, $containerCN, @cnValueArr, $levelCounter, $partialDN, $keyPrefixStr, @overWrArr, $actEntryCN, $actEntryDN);
 
-    my ($strikeOutPrefix, $strikeOutDelimiter, $strikeOutpostix); 
+    #these markups will be used to generate the key list. The markup type (html/prop) is specified by the argument of the function
+    my $keyListMarkupTable = {
+        keyPrefix => { html => "<tr><td>", prop => "" },
+        keyValueDelimiter => { html => "</td><td>", prop => "=" },
+        valuePostfix => { html => "</td></tr>", prop => "\n" },
+        commentPrefix => { html => "<!--", prop => "#" },
+        commentPostfix => { html => "-->", prop => "\n" },
+        strikeOutPrefix => { html => "<strike>", prop => "#" },
+        strikeOutPostfix => { html => "</strike>", prop => "\n" },
+        overWrPrefix => { html => "<br/><span style=\"color:#F00000\">", prop => "\n#" },
+        overWrPostfix => { html => "</span>", prop => "\n" }
+    };
     
-    #print "Current base : $currentBase<br/>";
-
     #split based on inheritance setting
     if ( param("enableSettingsInheritance") == 1 ) {
         #in case inheritance is set just break up the cn and follow through from top to bottom
@@ -82,7 +91,7 @@ sub generateInheritedKeys {
         
         #set string that separates the elements of an array when expanded in a double quoted string
         $"=",";
-        my $myLevelKeys = &getContainerLevelKeys($partialDN, $commentprefix, $commentpostfix);
+        my $myLevelKeys = &getContainerLevelKeys($partialDN, ${$keyListMarkupTable}{commentPrefix}->{$listType}, ${$keyListMarkupTable}{commentPostfix}->{$listType});
 
         foreach $entry ($myLevelKeys->entries) {
             $actEntryCN = $entry->get_value("cn");
@@ -92,12 +101,7 @@ sub generateInheritedKeys {
                 $entry = getLDAPEntry($entry->get_value("aliasedObjectName"));
             }
             
-#             if ( param("includePropertyComment") == 1 ) {
-#                 print "\n".$commentprefix.$entry->get_value("description").$commentpostfix."\n";
-#             }
-
             $keyName = $keyPrefixStr.$actEntryCN;
-            #print $prefix.$keyName.$delimiter.$entry->get_value("keyValue").$postfix;
 
             &checkOverWrite($actEntryCN, $keyPrefixStr, \@overWrArr, $levelCounter);
             $overWrArr[$levelCounter]{$actEntryCN} = [$actEntryCN, $keyPrefixStr, "", $entry->get_value("keyValue"), $entry->get_value("description")];
@@ -112,14 +116,17 @@ sub generateInheritedKeys {
 
     foreach $levelHash (@overWrArr) {
         foreach $levelKey ( keys %$levelHash ) {
+
             if ( param("includePropertyComment") == 1 ) {
-                print "\n".$commentprefix.${$levelHash}{$levelKey}[4].$commentpostfix."\n";
+                print "\n".${$keyListMarkupTable}{commentPrefix}->{$listType}.${$levelHash}{$levelKey}[4].${$keyListMarkupTable}{commentPostfix}->{$listType}."\n";
             }
-            
+
             if ( ${$levelHash}{$levelKey}[2] eq "" ) {
-                print $prefix.${$levelHash}{$levelKey}[1].$levelKey.$delimiter.${$levelHash}{$levelKey}[3].$postfix;
+                print ${$keyListMarkupTable}{keyPrefix}->{$listType}.${$levelHash}{$levelKey}[1].$levelKey.${$keyListMarkupTable}{keyValueDelimiter}->{$listType}.${$levelHash}{$levelKey}[3].${$keyListMarkupTable}{valuePostfix}->{$listType};
             } else {
-                print $prefix."<strike>".${$levelHash}{$levelKey}[1].$levelKey."</strike><br/>".${$levelHash}{$levelKey}[2].$levelKey.$delimiter."<strike>".${$levelHash}{$levelKey}[3]."</strike>".$postfix;
+                if ( param("showSettingsOverwrite") == 1) {
+                    print ${$keyListMarkupTable}{keyPrefix}->{$listType}.${$keyListMarkupTable}{strikeOutPrefix}->{$listType}.${$levelHash}{$levelKey}[1].$levelKey.${$keyListMarkupTable}{strikeOutPostfix}->{$listType}.${$keyListMarkupTable}{overWrPrefix}->{$listType}.${$levelHash}{$levelKey}[2].$levelKey.${$keyListMarkupTable}{overWrPostfix}->{$listType}.${$keyListMarkupTable}{keyValueDelimiter}->{$listType}.${$keyListMarkupTable}{strikeOutPrefix}->{$listType}.${$levelHash}{$levelKey}[3].${$keyListMarkupTable}{strikeOutPostfix}->{$listType}.${$keyListMarkupTable}{valuePostfix}->{$listType};
+                }
             }
         }
         $localLevel++;
@@ -149,7 +156,7 @@ if ( param("predicate") eq "export" ) {
         my $myCurrTime = &printCurrTime("_");
         #print "Content-Type:application/x-download\r\n\r\n";
         print "Content-Disposition:attachment;filename=settings_".$myCurrTime.".properties\r\n\r\n";  
-        &generateInheritedKeys("","=","\n","#","");
+        &generateInheritedKeys("prop");
     } elsif ( param("exportType") eq "html" ) { 
         #print CGILOG "exportType : html\n";
         print "Content-type: text/html\r\n\r\n";
@@ -158,7 +165,7 @@ if ( param("predicate") eq "export" ) {
         print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th></tr>";
 
         #print "CurrentBase : ".$currentBase."<br/>";
-        &generateInheritedKeys("<tr><td>","</td><td>","</td></tr>","<!--","-->");
+        &generateInheritedKeys("html");
 
         print "</table></body></html>\n";
     }
