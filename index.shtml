@@ -1,0 +1,17 @@
+<html>
+  <head>
+    <title>ARC Configuration Repository &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SVN Revision : <!--#exec cmd="svn info . | grep \"^Revision\" | awk '{print $2}'" --> </title>
+    <script type="text/javascript" src="js/main.js"></script>
+  </head>
+  <frameset rows="80%,*">
+
+    <frameset cols="25%,*">
+      <frame name="navigation" src="ldap_tree.html">
+      <frame name="details" src="details.html">
+    </frameset>
+
+    <frame name="info">
+
+  </frameset>
+
+</html>
