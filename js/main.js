@@ -274,6 +274,9 @@ function saveExportSettings(sourceForm, targetForm) {
     saveExportSettingsCheckbox(sourceForm.elements.prefixKeys, targetForm.elements.prefixKeys);
 
     targetForm.elements.prefixKeysSeparator.value = sourceForm.elements.prefixKeysSeparator.value;
+
+    targetForm.elements.upwardInheritance.value = sourceForm.elements.upwardInheritance.value;
+    targetForm.elements.downwardInheritance.value = sourceForm.elements.downwardInheritance.value;
 }
 
 /*
@@ -289,6 +292,9 @@ function loadExportSettings(sourceForm, targetForm) {
     loadExportSettingsCheckbox(sourceForm.elements.prefixKeys, targetForm.elements.prefixKeys);
 
     targetForm.elements.prefixKeysSeparator.value = sourceForm.elements.prefixKeysSeparator.value;
+
+    targetForm.elements.upwardInheritance.value = sourceForm.elements.upwardInheritance.value;
+    targetForm.elements.downwardInheritance.value = sourceForm.elements.downwardInheritance.value;
 }
 
 /*
