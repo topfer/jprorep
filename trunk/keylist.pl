@@ -49,13 +49,13 @@ sub checkOverWrite {
     }
 }
 
-sub generateInheritedKeys {
+sub listParentKeys {
 
     my ($listType) = @_;
 
     my ($keyName, $keyValue, $containerCN, @cnValueArr, $levelCounter, $partialDN, $keyPrefixStr, @overWrArr, $actEntryCN, $actEntryDN);
 
-    #these markups will be used to generate the key list. The markup type (html/prop) is specified by the argument of the function
+    #these markups will be used to generate the key list. The markup type (html/prop) is specified by the functions' argument
     my $keyListMarkupTable = {
         keyPrefix => { html => "<tr><td>", prop => "" },
         keyValueDelimiter => { html => "</td><td>", prop => "=" },
@@ -86,7 +86,7 @@ sub generateInheritedKeys {
         $partialDN = $containerCN.",".$partialDN;
         
         if ( param("prefixKeys") == 1 ) {
-            $keyPrefixStr = $keyPrefixStr.substr($containerCN, index($containerCN, '=') + 1 ).".";
+            $keyPrefixStr = $keyPrefixStr.substr($containerCN, index($containerCN, '=') + 1 ).param("prefixKeysSeparator");
         }
         
         #set string that separates the elements of an array when expanded in a double quoted string
@@ -156,7 +156,7 @@ if ( param("predicate") eq "export" ) {
         my $myCurrTime = &printCurrTime("_");
         #print "Content-Type:application/x-download\r\n\r\n";
         print "Content-Disposition:attachment;filename=settings_".$myCurrTime.".properties\r\n\r\n";  
-        &generateInheritedKeys("prop");
+        &listParentKeys("prop");
     } elsif ( param("exportType") eq "html" ) { 
         #print CGILOG "exportType : html\n";
         print "Content-type: text/html\r\n\r\n";
@@ -165,7 +165,7 @@ if ( param("predicate") eq "export" ) {
         print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th></tr>";
 
         #print "CurrentBase : ".$currentBase."<br/>";
-        &generateInheritedKeys("html");
+        &listParentKeys("html");
 
         print "</table></body></html>\n";
     }
