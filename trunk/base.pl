@@ -23,29 +23,15 @@ sub printCurrTime {
         $dateSpacer = $timeSpacer = $dateTimeSpacer = "_";
     }
 
-    return $retStr.strftime("%Y".$dateSpacer."%b".$dateSpacer."%d".$dateTimeSpacer."%H".$timeSpacer."%M".$timeSpacer."%S", localtime);
-}
-
-sub logtime {
-    return "[".&printCurrTime()."] ";
-}
-
-sub disabled_printCurrTime() {
-    my ($dateSpacer, $timeSpacer, $dateTimeSpacer) = @_;
-
-    if ( ! defined $dateSpacer ) {
-        $dateSpacer = "/";
-        $timeSpacer = ":";
-        $dateTimeSpacer = " ";
-    } else {
-        $dateSpacer = $timeSpacer = $dateTimeSpacer = "_";
-    }
-
     return strftime("%Y".$dateSpacer."%b".$dateSpacer."%d".$dateTimeSpacer."%H".$timeSpacer."%M".$timeSpacer."%S", localtime);
 }
 
+sub logtime {
+    return "[".printCurrTime()."] ";
+}
+
 sub getLDAPEntry {
-    my $nodeDN = $_[0];
+    my ($nodeDN, $derefLink) = @_;
 
     if ( ! defined $nodeDN || $nodeDN eq "" || $nodeDN eq "0" ) {
         $nodeDN = "dc=arcore,dc=amadeus,dc=com";
