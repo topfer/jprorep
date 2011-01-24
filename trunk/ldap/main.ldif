@@ -10,20 +10,78 @@ description: Mid and Back Office
 objectClass: propertyContainer
 childrenCount: 1
 
-dn: cn=container1,cn=mbo,dc=arcore,dc=amadeus,dc=com
-cn: container1
-description: container1 description
+dn: cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: servers
+description: Servers group
 objectClass: propertyContainer
-childrenCount: 1
+childrenCount: 2
 
-dn: cn=object1A,cn=container1,cn=mbo,dc=arcore,dc=amadeus,dc=com
-cn: object1A
-description: container1 description
-keyValue: object1A keyValue
+dn: cn=location,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: location
+description: Phisical server location
+keyValue: Labo
 keyType: object1A keyType
 valueType: object1A valueType
 objectClass: propertyObject
-aliasingEntryName: cn=object1A,cn=container2,cn=mbo,dc=arcore,dc=amadeus,dc=com
+
+dn: cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: web
+description: WebServers group
+objectClass: propertyContainer
+childrenCount: 2
+
+dn: cn=responsible,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: responsible
+description: Web server responsible
+keyValue: Labo
+keyType: object1A keyType
+valueType: object1A valueType
+objectClass: propertyObject
+
+dn: cn=tomcat,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: tomcat
+description: Tomcat group
+objectClass: propertyContainer
+childrenCount: 3
+aliasingEntryName: cn=object2A,cn=container2,cn=mbo,dc=arcore,dc=amadeus,dc=com
+
+dn: cn=http,cn=tomcat,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: http
+description: HTTP port
+keyValue: 8080
+keyType: object1A keyType
+valueType: object1A valueType
+objectClass: propertyObject
+
+dn: cn=https,cn=tomcat,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: https
+description: HTTPS port
+keyValue: 8443
+keyType: object1A keyType
+valueType: object1A valueType
+objectClass: propertyObject
+
+dn: cn=AGM123,cn=tomcat,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: AGM123
+description: Tomcat settings corresponding to AGM 12.3
+objectClass: propertyContainer
+childrenCount: 2
+
+dn: cn=http,cn=AGM123,cn=tomcat,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: http
+description: HTTP port
+keyValue: 12300
+keyType: object1A keyType
+valueType: object1A valueType
+objectClass: propertyObject
+
+dn: cn=https,cn=AGM123,cn=tomcat,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: https
+description: HTTPS port
+keyValue: 12343
+keyType: object1A keyType
+valueType: object1A valueType
+objectClass: propertyObject
 
 dn: cn=container2,cn=mbo,dc=arcore,dc=amadeus,dc=com
 cn: container2
@@ -31,9 +89,10 @@ description: container1 description
 objectClass: propertyContainer
 childrenCount: 1
 
-dn: cn=object1A,cn=container2,cn=mbo,dc=arcore,dc=amadeus,dc=com
-cn: object1A
+dn: cn=object2A,cn=container2,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: object2A
+objectClass: inheritingAlias
 objectClass: alias
 objectClass: extensibleObject
-aliasedObjectName: cn=object1A,cn=container1,cn=mbo,dc=arcore,dc=amadeus,dc=com
-
+aliasedObjectName: cn=tomcat,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+inheritLevel : 3
