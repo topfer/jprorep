@@ -9,17 +9,23 @@ require "base.pl";
 
 my ($actualDN, $updateJSTree);
 
-#open(CGILOG, ">> /tmp/cgi.log");
+open(CGILOG, ">> /tmp/cgi.log");
 
 #creates a "(key1, value, key2, value2)" like list that is later used to update LDAP entries 
 sub createListfromCGIParams {
     my (@replaceList, $srcListRef);
-
-    if ( param("objectClass") eq "propertyObject") {
-        $srcListRef = $propertyAttrs;
-    } elsif ( param("objectClass") eq "propertyContainer") {
-        $srcListRef = $containerAttrs;
-    }     
+    
+    switch ( param( "objectClass" ) ) {
+        case "propertyContainer" {
+            $srcListRef = $containerAttrs;
+        }
+        case "propertyObject" {
+            $srcListRef = $propertyAttrs;
+        }
+        case "inheritingAlias" {
+            $srcListRef = $aliasAttrs;
+        }
+    }
 
     foreach $attr (@$srcListRef) {
         if ( length param($attr) > 0) {
@@ -214,6 +220,8 @@ switch ( param("predicate") ) {
 
     case "update" {
         my $translationList = &createListfromCGIParams();
+
+        print CGILOG logtime()."dbg_001 ".@$translationList."\n";
 
         $actualDN = param("nodeDN");
 
