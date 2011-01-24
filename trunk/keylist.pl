@@ -220,7 +220,7 @@ sub gatherChildKeys {
 
     #print CGILOG logtime()."gatherChildKeys(\"".$currentDN,"\",\"".$depth."\")\n";
 
-    my $keyList = $ldap->search(base => $currentDN, scope => "one", filter => "(|(objectclass=propertyContainer)(objectclass=alias))", attrs => "*");
+    my $keyList = $ldap->search(base => $currentDN, scope => "one", filter => "(|(objectclass=propertyContainer)(objectclass=alias)(objectclass=inheritingAlias))", attrs => "*");
 
     my $entry;
     my $followPath;
@@ -237,7 +237,8 @@ sub gatherChildKeys {
             $followPath = 1;
 
             #in case we stumbled upon a link get the linked object
-            if ( $entry->get_value("objectclass") eq "alias" ) {
+            if ( $entry->get_value("objectclass") eq "inheritingAlias" || 
+                 $entry->get_value("objectclass") eq "alias" ) {
                 $entry = getLDAPEntry($entry->get_value("aliasedObjectName"));
             }
 

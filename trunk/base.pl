@@ -5,7 +5,6 @@ open(CGILOG, ">> /tmp/cgi.log");
 
 $containerAttrs = ["cn","description"];
 $aliasAttrs = ["cn","aliasedObjectName","inheritLevel"];
-#$aliasAttrs = ["cn","aliasedObjectName"];
 $propertyAttrs = ["cn","description","keyValue","keyType","valueType","aliasedObjectName","inheritLevel"];
 $operationalAttrs = ['entryDN','creatorsName','createTimestamp','modifiersName','modifyTimestamp','childrenCount','aliasingEntryName'];
 my @allAttributes = ("objectClass", @$propertyAttrs, @$operationalAttrs);
@@ -134,6 +133,11 @@ sub generateClassTypeSelection {
         print " selected='true'";
     }
     print ">propertyObject</option>";
+    print "<option value='inheritingAlias'";
+    if ($preselectedValue eq "inheritingAlias") {
+        print " selected='true'";
+    }
+    print ">alias</option>";
     print "</select></td>\n</tr>";
 }
 
@@ -151,11 +155,24 @@ sub generateEditForm {
 
     my $ldapEntry = $_[0];
 
-    if ($ldapEntry->get_value( "objectClass" ) eq "propertyContainer") {
-        &generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 1, 0, "update");
-    } else {
-        &generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 0, "update");
+    #print CGILOG logtime().$ldapEntry->dn()." type ".$ldapEntry->get_value("objectClass")."\n";
+
+    switch ( $ldapEntry->get_value( "objectClass" ) ) {
+        case "propertyContainer" {
+            generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 1, 0, "update");
+        }
+        case "propertyObject" {
+            generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 0, "update");
+        }
+        case "inheritingAlias" {
+            generateInputForm($ldapEntry, $aliasAttrs, "inheritingAlias", 1, 0, "update");
+        }
+        else {
+            print "\n<h2>Unknown LDAP entry type:".$ldapEntry->get_value( "objectClass" )."</h2>";
+            #generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 1, "update");
+        }
     }
+
     print "</form></table></div>";
 };
 
@@ -163,13 +180,7 @@ sub generateViewForm {
     
     my $ldapEntry = $_[0];
 
-#     if ($ldapEntry->get_value( "objectClass" ) eq "propertyContainer") {
-#         &generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 1, 1, "view");
-#     } else {
-#         &generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 1, "view");
-#     }
-
-    print CGILOG logtime().$ldapEntry->dn()." type ".$ldapEntry->get_value("objectClass")."\n";
+    #print CGILOG logtime().$ldapEntry->dn()." type ".$ldapEntry->get_value("objectClass")."\n";
 
     switch ( $ldapEntry->get_value( "objectClass" ) ) {
         case "propertyContainer" {
@@ -183,7 +194,7 @@ sub generateViewForm {
         }
         else {
             print "\n<h2>Unknown LDAP entry type:".$ldapEntry->get_value( "objectClass" )."</h2>";
-            generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 1, "view");
+            #generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 1, "view");
         }
     }
     
