@@ -5,7 +5,7 @@ use CGI qw(:standard escapeHTML);
 
 require "base.pl";
 
-open(CGILOG, ">> /tmp/cgi.log");
+#open(CGILOG, ">> /tmp/cgi.log");
 
 my $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
@@ -172,7 +172,8 @@ sub addContainerKeysToInheritanceTable {
     foreach $entry ($myLevelKeys->entries) {
         $entryCN = $entry->get_value("cn");
         
-        if ( $entry->get_value("objectclass") eq "alias" ) {
+        if ( $entry->get_value("objectclass") eq "inheritingAlias" || 
+            $entry->get_value("objectclass") eq "alias") {
             $entry = getLDAPEntry($entry->get_value("aliasedObjectName"));
         }
 
@@ -194,7 +195,7 @@ sub addContainerKeysToInheritanceTable {
 sub getContainerLevelKeys {
     my ($currentRoot, $commentprefix, $commentpostfix) = @_;
 
-    print CGILOG logtime()."getContainerLevelKeys(\"".$currentRoot,"\",\"".$commentprefix."\",\"".$commentpostfix."\")\n";
+    #print CGILOG logtime()."getContainerLevelKeys(\"".$currentRoot,"\",\"".$commentprefix."\",\"".$commentpostfix."\")\n";
 
     my $keyList = $ldap->search(base => $currentRoot, scope => "one", filter => $keySearchFilter, attrs => '*');
     if ( param("includeContainerComment") == 1 ) {
@@ -217,7 +218,7 @@ sub gatherChildKeys {
     
     my ($currentDN, $depth, $inheritanceTable) = @_;
 
-    print CGILOG logtime()."gatherChildKeys(\"".$currentDN,"\",\"".$depth."\")\n";
+    #print CGILOG logtime()."gatherChildKeys(\"".$currentDN,"\",\"".$depth."\")\n";
 
     my $keyList = $ldap->search(base => $currentDN, scope => "one", filter => "(|(objectclass=propertyContainer)(objectclass=alias))", attrs => "*");
 
@@ -272,7 +273,7 @@ sub gatherChildKeys {
 sub gatherParentKeys {
     my ($currDNValue, $listType, $height, $inheritanceTable) = @_;
 
-    print CGILOG logtime()."gatherParentKeys(\"".$currDNValue."\",\"".$listType."\",\"".$height."\",\"".$inheritanceTable.")\n";
+    #print CGILOG logtime()."gatherParentKeys(\"".$currDNValue."\",\"".$listType."\",\"".$height."\",\"".$inheritanceTable.")\n";
 
     if ( $height > 0 && $currDNValue ne $rootDN ) {
         $inheritanceTable = gatherParentKeys(substr($currDNValue, index($currDNValue,",") + 1), "html", $height-1, {});
@@ -346,7 +347,7 @@ sub genInheritanceTable {
 # main function
 ################################################################################
 if ( param("dereferenceLinks") eq "1" ) {
-    $keySearchFilter = "(|(objectclass=propertyObject)(objectclass=alias))";
+    $keySearchFilter = "(|(objectclass=propertyObject)(objectclass=alias)(objectclass=inheritingAlias))";
 } else {
     $keySearchFilter = "(objectclass=propertyObject)";
 }

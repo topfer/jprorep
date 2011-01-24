@@ -1,7 +1,12 @@
+use Switch;
 use POSIX qw(strftime);
 
+open(CGILOG, ">> /tmp/cgi.log");
+
 $containerAttrs = ["cn","description"];
-$propertyAttrs = ["cn","description","keyValue","keyType","valueType"];
+$aliasAttrs = ["cn","aliasedObjectName","inheritLevel"];
+#$aliasAttrs = ["cn","aliasedObjectName"];
+$propertyAttrs = ["cn","description","keyValue","keyType","valueType","aliasedObjectName","inheritLevel"];
 $operationalAttrs = ['entryDN','creatorsName','createTimestamp','modifiersName','modifyTimestamp','childrenCount','aliasingEntryName'];
 my @allAttributes = ("objectClass", @$propertyAttrs, @$operationalAttrs);
 
@@ -32,13 +37,19 @@ sub logtime {
 
 sub getLDAPEntry {
     my ($nodeDN, $derefLink) = @_;
+    my $msg;
 
     if ( ! defined $nodeDN || $nodeDN eq "" || $nodeDN eq "0" ) {
         $nodeDN = "dc=arcore,dc=amadeus,dc=com";
     }
 
-    my $msg = $ldap->search(base => $nodeDN, scope => base, filter => "(objectclass=*)", attrs => \@allAttributes );
-    #my $msg = $ldap->search(base => $nodeDN, , deref => never, scope => base, filter => "(objectclass=*)", attrs => \@allAttributes );
+    if ( defined $derefLink ) {
+        $msg = $ldap->search(base => $nodeDN, scope => base, filter => "(objectclass=*)", attrs => \@allAttributes, deref => "never" );
+    } else {
+        $msg = $ldap->search(base => $nodeDN, scope => base, filter => "(objectclass=*)", attrs => \@allAttributes );
+    }
+    #my $msg = $ldap->search(base => $nodeDN, scope => base, filter => "(objectclass=*)", attrs => \@allAttributes );
+    #my $msg = $ldap->search(base => $nodeDN, scope => base, filter => "(objectclass=*)", attrs => \@allAttributes, deref => never );
 
     return $msg->pop_entry();
 }
@@ -47,7 +58,7 @@ sub generateInputLines {
 
     my ($ldapEntry, $elemArray, $elemType, $loadValue, $readOnly) = @_;
 
-    my ($trStyle, $inputStyle);
+    my ($trStyle, $inputStyle, $currAttrVal);
 
     my $lineClass = "ldapEntryAttrInput ".$elemType;
     
@@ -56,11 +67,21 @@ sub generateInputLines {
     }
 
     foreach $attr (@$elemArray) {
+
+        if ( $loadValue ) {
+            $currAttrVal = $ldapEntry->get_value( $attr );
+        }
+
+        if (! defined $currAttrVal) {
+            $currAttrVal = "";
+        }
+
+        #print CGILOG logtime().$attr."=".$myAttrVal."\n";
         print "\n<tr class='".$lineClass."'>";
         print "<td width='150px' align='right'>".$attr."</td>";
         print "<td><input type='text' style='width:100%' name='".$attr."' ";
         if ( $loadValue ) {
-            print "value='".$ldapEntry->get_value( $attr )."' ";
+            print "value='".$currAttrVal."' ";
         };
         if ( $readOnly ) {
             print "readonly='true' ";
@@ -81,11 +102,11 @@ sub generateInputForm {
     print "<input type='hidden' name='predicate' value='".$predicate."'>\n";
     print "<input type='hidden' name='nodeDN' value='".$ldapEntry->get_value( "entryDN" )."'>";
     if ( $predicate eq 'create' ) {
-        &generateClassTypeSelection($classType, 0);
+        generateClassTypeSelection($classType, 0);
     } else {
-        &generateClassTypeSelection($classType, 1);
+        generateClassTypeSelection($classType, 1);
     };
-    &generateInputLines($ldapEntry, $attributesArray, $classType, $loadValue, $readOnly);
+    generateInputLines($ldapEntry, $attributesArray, $classType, $loadValue, $readOnly);
 }
 
 sub generateClassTypeSelection {
@@ -142,10 +163,28 @@ sub generateViewForm {
     
     my $ldapEntry = $_[0];
 
-    if ($ldapEntry->get_value( "objectClass" ) eq "propertyContainer") {
-        &generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 1, 1, "view");
-    } else {
-        &generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 1, "view");
+#     if ($ldapEntry->get_value( "objectClass" ) eq "propertyContainer") {
+#         &generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 1, 1, "view");
+#     } else {
+#         &generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 1, "view");
+#     }
+
+    print CGILOG logtime().$ldapEntry->dn()." type ".$ldapEntry->get_value("objectClass")."\n";
+
+    switch ( $ldapEntry->get_value( "objectClass" ) ) {
+        case "propertyContainer" {
+            generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 1, 1, "view");
+        }
+        case "propertyObject" {
+            generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 1, "view");
+        }
+        case "inheritingAlias" {
+            generateInputForm($ldapEntry, $aliasAttrs, "inheritingAlias", 1, 1, "view");
+        }
+        else {
+            print "\n<h2>Unknown LDAP entry type:".$ldapEntry->get_value( "objectClass" )."</h2>";
+            generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 1, "view");
+        }
     }
     
     &generateInputLines($ldapEntry, $operationalAttrs, "operational", 1, 1);

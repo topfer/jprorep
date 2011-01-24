@@ -4,7 +4,8 @@ use CGI qw(:standard escapeHTML);
 
 require "base.pl";
 
-my $ldapEntry = &getLDAPEntry(param("nodeDN"));
+my $ldapEntry = getLDAPEntry(param("nodeDN"), "never");
+#my $ldapEntry = &getLDAPEntry(param("nodeDN"));
 
 print "Content-type: text/html\r\n\r\n";
 
