@@ -106,7 +106,7 @@ switch ( param("predicate") ) {
         my $parentDN = param("nodeDN");
         $actualDN = "cn=".param("cn").",".param("nodeDN");
 
-        my $translationList = &createListfromCGIParams();
+        my $translationList = createListfromCGIParams();
 
         push(@$translationList, "objectclass", param("objectClass"));
 
@@ -132,6 +132,7 @@ switch ( param("predicate") ) {
         $currentCN = substr(param("nodeDN"), 0, index(param("nodeDN"), ','));
         $actualDN = $currentCN.','.$containingDN;
         
+        push(@translationList, "objectclass", "inheritingAlias");
         push(@translationList, "objectclass", "alias");
         push(@translationList, "objectclass", "extensibleObject");
         push(@translationList, "aliasedObjectName", param("nodeDN"));
