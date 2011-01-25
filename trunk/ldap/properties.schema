@@ -67,8 +67,8 @@ objectclass ( 1.3.6.1.4.1.42.2.27.39.2.1
 	NAME 'propertyContainer'
 	DESC 'Container for properties'
 	SUP top STRUCTURAL
-	MUST ( cn $ childrenCount )
-    MAY ( description $ lockOwner  $ aliasingEntryName ) )
+	MUST cn
+    MAY ( description $ lockOwner  $ aliasingEntryName $ childrenCount ) )
 
 objectclass ( 1.3.6.1.4.1.42.2.27.39.2.3
 	NAME 'propertyObject'
