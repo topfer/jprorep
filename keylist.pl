@@ -45,7 +45,7 @@ sub printInhTable {
 
 ################################################################################
 # all the following functions operate on a data structure that can be described
-# as a hash of arrays of arrays. See folowin example :
+# as a hash of arrays of arrays. See folowing example :
 #
 # my $dct = {
 #    key1 => [ ["container1", "container1_key1_val", "container1_key1_descr"], 
@@ -156,6 +156,30 @@ sub appendArray {
 }
 
 ################################################################################
+# Generates an object of class LDAP::Search that contains all keys of
+# the current container
+# arg1 - The DN that is the base object entry relative to which the search 
+#        is to be performed.
+# arg2 - tag that preceeds the comment that is to be added for the container 
+#        ("<!--" or "#" or "")
+# arg3 - tag to suceeds the comment that is to be added for the container 
+#        ("-->" or "")
+################################################################################
+sub getContainerLevelKeys {
+    my ($currentRoot, $commentprefix, $commentpostfix) = @_;
+
+    #print CGILOG logtime()."getContainerLevelKeys(\"".$currentRoot,"\",\"".$commentprefix."\",\"".$commentpostfix."\")\n";
+
+    my $keyList = $ldap->search(base => $currentRoot, scope => "one", filter => $keySearchFilter, attrs => '*');
+    if ( param("includeContainerComment") == 1 ) {
+        my $containerObj = getLDAPEntry($currentRoot);
+        #this following statement is supposed to print the container level description
+        #print "\n".$commentprefix.$containerObj->get_value("description").$commentpostfix."\n";        
+    }
+    return $keyList;
+}
+
+################################################################################
 ################################################################################
 sub addContainerKeysToInheritanceTable {
     my ($containerDN, $inheritanceTable) =@_;
@@ -187,28 +211,6 @@ sub addContainerKeysToInheritanceTable {
 ################################################################################
 # arg1 - The DN that is the base object entry relative to which the search 
 #        is to be performed.
-# arg2 - tag that preceeds the comment that is to be added for the container 
-#        ("<!--" or "#" or "")
-# arg3 - tag to suceeds the comment that is to be added for the container 
-#        ("-->" or "")
-################################################################################
-sub getContainerLevelKeys {
-    my ($currentRoot, $commentprefix, $commentpostfix) = @_;
-
-    #print CGILOG logtime()."getContainerLevelKeys(\"".$currentRoot,"\",\"".$commentprefix."\",\"".$commentpostfix."\")\n";
-
-    my $keyList = $ldap->search(base => $currentRoot, scope => "one", filter => $keySearchFilter, attrs => '*');
-    if ( param("includeContainerComment") == 1 ) {
-        my $containerObj = getLDAPEntry($currentRoot);
-        #this following statement is supposed to print the container level description
-        #print "\n".$commentprefix.$containerObj->get_value("description").$commentpostfix."\n";        
-    }
-    return $keyList;
-}
-
-################################################################################
-# arg1 - The DN that is the base object entry relative to which the search 
-#        is to be performed.
 # arg2 - current depth of search (during the recursive calls this depth will
 #        decrease to 0
 # arg3 - inheritance table in which the keys of the current container will be
@@ -229,11 +231,9 @@ sub gatherChildKeys {
 
         addContainerKeysToInheritanceTable($currentDN, $inheritanceTable);
 
-        #getContainerLevelKeys($currentDN,"","");
-
         foreach $entry ($keyList->entries) {
 
-            #normally we do follow path, unless a link points to a non container
+            #normally we do follow links, unless the link points to a non container
             $followPath = 1;
 
             #in case we stumbled upon a link get the linked object
@@ -242,7 +242,7 @@ sub gatherChildKeys {
                 $entry = getLDAPEntry($entry->get_value("aliasedObjectName"));
             }
 
-            #if the link doesn't point to a container no follow-up is necessary
+            #if the link doesn't point to a container no follow-up needed
             if ( $entry->get_value("objectclass") ne "propertyContainer" ) {
                 $followPath = 0;
             }
@@ -258,11 +258,11 @@ sub gatherChildKeys {
 ################################################################################
 # Recursive function that travels up the inheritance tree and adds the object
 # keys of each level to the inheritance table. The recursive call occurs before
-# the actual adding of the keys of the current level, so the inheritance table
+# the actual addition of the keys of the current level, so the inheritance table
 # is built up on the way returning from the recursion. 
-# The recurion stops when the top of the three is reached, that is, the DN of
-# the current container is equal with the DN ot the root, or when the requested
-# height is reached
+# The recursion stops when the top of the three is reached, that is, the DN of
+# the current container is equal with the DN of the root, or when the requested
+# height is reached.
 # arg1 - The DN that is the base object entry relative to which the search 
 #        is to be performed.
 # arg2 - current height of search. During the recursive calls this height will
@@ -297,7 +297,7 @@ sub gatherParentKeys {
 # arg3 - inheritance table in which the keys of the current container will be
 #        inserted
 ################################################################################
-sub old_gatherParentKeys {
+sub disabled_gatherParentKeys {
     my ($currDNValue, $listType, $upInherit, $inheritanceTable) = @_;
 
     my ($tempCNDelimiterIndex, $containerPrefix);
