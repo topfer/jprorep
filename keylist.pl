@@ -5,7 +5,7 @@ use CGI qw(:standard escapeHTML);
 
 require "base.pl";
 
-#open(CGILOG, ">> /tmp/cgi.log");
+open(CGILOG, ">> /tmp/cgi.log");
 
 my $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
@@ -59,8 +59,8 @@ sub printInhTable {
 #              ["container4", "container4_key3_val", "container4_key3_descr"] ]
 # };
 #
-# understanding of the above structure the way it can be manipulated is vital
-# for comprehending the following functions that operate on it
+# understanding of the above structure and the way it can be manipulated is 
+# vital for comprehending the following functions that operate on it.
 # in most functions we refer to this structure as the "inheritance table"
 ################################################################################
 
@@ -220,7 +220,7 @@ sub gatherChildKeys {
     
     my ($currentDN, $depth, $inheritanceTable) = @_;
 
-    #print CGILOG logtime()."gatherChildKeys(\"".$currentDN,"\",\"".$depth."\")\n";
+    print CGILOG logtime()."gatherChildKeys(\"".$currentDN,"\",\"".$depth."\")\n";
 
     my $keyList = $ldap->search(base => $currentDN, scope => "one", filter => "(|(objectclass=propertyContainer)(objectclass=alias)(objectclass=inheritingAlias))", attrs => "*");
 
@@ -247,8 +247,11 @@ sub gatherChildKeys {
                 $followPath = 0;
             }
             
-            #in case we are still on with the path follow-up let's just do exactly that
+            #in case we are still on with the link follow-up let's just do exactly that
             if ($followPath == 1) {
+                print CGILOG logtime()."Follow link : ".$entry->dn()."\n"; 
+                #$inheritanceTable = gatherParentKeys(substr($currentBase.",".$rootDN, index($currentBase.",".$rootDN,",") + 1), $listType, param("upwardInheritance") - 1, {});
+                gatherParentKeys($entry->dn(), param("upwardInheritance") - 1, $inheritanceTable);
                 gatherChildKeys($entry->dn(), $depth - 1, $inheritanceTable);
             }
         }
@@ -274,7 +277,7 @@ sub gatherChildKeys {
 sub gatherParentKeys {
     my ($currDNValue, $listType, $height, $inheritanceTable) = @_;
 
-    #print CGILOG logtime()."gatherParentKeys(\"".$currDNValue."\",\"".$listType."\",\"".$height."\",\"".$inheritanceTable.")\n";
+    print CGILOG logtime()."gatherParentKeys(\"".$currDNValue."\",\"".$listType."\",\"".$height."\",\"".$inheritanceTable.")\n";
 
     if ( $height > 0 && $currDNValue ne $rootDN ) {
         $inheritanceTable = gatherParentKeys(substr($currDNValue, index($currDNValue,",") + 1), "html", $height-1, {});
@@ -322,20 +325,20 @@ sub disabled_gatherParentKeys {
 # upwards and downwards inharitance as needed 
 ################################################################################
 sub genInheritanceTable {
-    my ($listType) = @_;
+    my ($listType, $upwardInheritance, $downwardInheritance) = @_;
 
     my $inheritanceTable;
 
     #gather parent keys if required or just initialise the inheritance table
     if ( param("upwardInheritance") > 0 ) {
-        $inheritanceTable = gatherParentKeys(substr($currentBase.",".$rootDN, index($currentBase.",".$rootDN,",") + 1), $listType, param("upwardInheritance") - 1, {});
+        $inheritanceTable = gatherParentKeys(substr($currentBase.",".$rootDN, index($currentBase.",".$rootDN,",") + 1), $listType, $upwardInheritance, {});
     } else {
         $inheritanceTable = {};
     }
 
     #gather child keys (that includes the current container) if required or just add the current container
     if ( param("downwardInheritance") > 0 ) {
-        gatherChildKeys($currentBase.",".$rootDN, param("downwardInheritance"), $inheritanceTable);
+        gatherChildKeys($currentBase.",".$rootDN, $downwardInheritance, $inheritanceTable);
     } else {
         addContainerKeysToInheritanceTable($currentBase.",".$rootDN, $inheritanceTable);
     }
@@ -359,8 +362,7 @@ if ( param("predicate") eq "export" ) {
         #print "Content-Type:application/x-download\r\n\r\n";
         print "Content-Disposition:attachment;filename=settings_".$myCurrTime.".properties\r\n\r\n";  
 
-        #my $inheritanceTable = gatherParentKeys($currentBase.",".$rootDN, "prop", param("upwardInheritance"), {});
-        my $inheritanceTable = genInheritanceTable("prop");
+        my $inheritanceTable = genInheritanceTable("prop", param("upwardInheritance") - 1, param("downwardInheritance"));
 
         printInhTableToJPROP($inheritanceTable);
     } elsif ( param("exportType") eq "html" ) { 
@@ -370,8 +372,7 @@ if ( param("predicate") eq "export" ) {
         print "<table border='1' width='100%'>";
         print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th></tr>";
 
-        #my $inheritanceTable = gatherParentKeys($currentBase.",".$rootDN, "html", param("upwardInheritance"), {});
-        my $inheritanceTable = genInheritanceTable("html");
+        my $inheritanceTable = genInheritanceTable("html", param("upwardInheritance") - 1, param("downwardInheritance"));
         
         printInhTableToHTML($inheritanceTable);
 
