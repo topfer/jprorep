@@ -180,18 +180,23 @@ sub getContainerLevelKeys {
 }
 
 ################################################################################
+# Updates the inheritance table with the content of the keys of the container
+# arg1 - The DN of the container who's keys will be added to the inheritance
+#        table
+# arg2 - Reference to the current inheritance table
 ################################################################################
 sub addContainerKeysToInheritanceTable {
     my ($containerDN, $inheritanceTable) =@_;
     
-    my ($myLevelKeys, $containerPrefix, $entry, $entryCN);
+    my ($myLevelKeys, $containerPrefix, $entry, $entryCN, $prefixSeparator);
 
     $myLevelKeys = getContainerLevelKeys($containerDN, "", "");
 
     $containerPrefix = $containerDN;
+    $prefixSeparator = param("prefixKeysSeparator");
 
     #replace all string of ",cn=" or "cn=" with dots(".")
-    $containerPrefix =~ s/,*[[:alpha:]]+=/./g;
+    $containerPrefix =~ s/,*[[:alpha:]]+=/$prefixSeparator/g;
 
     foreach $entry ($myLevelKeys->entries) {
         $entryCN = $entry->get_value("cn");
@@ -203,7 +208,10 @@ sub addContainerKeysToInheritanceTable {
 
         #add key only if it's an object or an alias to an object
         if ( $entry->get_value("objectclass") eq "propertyObject" ) {
-            appendArray($inheritanceTable, $entryCN, [join(".", reverse split(/\./, $containerPrefix)).$entryCN, $entry->get_value("keyValue"), $entry->get_value("description")]);
+            appendArray($inheritanceTable, $entryCN, 
+                        [join($prefixSeparator, reverse split(/$prefixSeparator/, $containerPrefix)).$entryCN, 
+                              $entry->get_value("keyValue"), 
+                              $entry->get_value("description")]);
         }
     }
 }
@@ -222,7 +230,9 @@ sub gatherChildKeys {
 
     print CGILOG logtime()."gatherChildKeys(\"".$currentDN,"\",\"".$depth."\")\n";
 
-    my $keyList = $ldap->search(base => $currentDN, scope => "one", filter => "(|(objectclass=propertyContainer)(objectclass=alias)(objectclass=inheritingAlias))", attrs => "*");
+    my $keyList = $ldap->search(base => $currentDN, scope => "one", 
+                                filter => "(|(objectclass=propertyContainer)(objectclass=alias)(objectclass=inheritingAlias))", 
+                                attrs => "*");
 
     my $entry;
     my $followPath;
@@ -250,7 +260,6 @@ sub gatherChildKeys {
             #in case we are still on with the link follow-up let's just do exactly that
             if ($followPath == 1) {
                 print CGILOG logtime()."Follow link : ".$entry->dn()."\n"; 
-                #$inheritanceTable = gatherParentKeys(substr($currentBase.",".$rootDN, index($currentBase.",".$rootDN,",") + 1), $listType, param("upwardInheritance") - 1, {});
                 gatherParentKeys($entry->dn(), param("upwardInheritance") - 1, $inheritanceTable);
                 gatherChildKeys($entry->dn(), $depth - 1, $inheritanceTable);
             }
@@ -331,7 +340,8 @@ sub genInheritanceTable {
 
     #gather parent keys if required or just initialise the inheritance table
     if ( param("upwardInheritance") > 0 ) {
-        $inheritanceTable = gatherParentKeys(substr($currentBase.",".$rootDN, index($currentBase.",".$rootDN,",") + 1), $listType, $upwardInheritance, {});
+        $inheritanceTable = gatherParentKeys(substr($currentBase.",".$rootDN, index($currentBase.",".$rootDN,",") + 1), 
+                                             $listType, $upwardInheritance, {});
     } else {
         $inheritanceTable = {};
     }
