@@ -7,6 +7,7 @@
 #sudo cp -i ~/Development/sites/arcore/ldap/properties.schema /opt/ldap/etc/openldap/schema/
 #sudo rm -f /opt/ldap/var/openldap-data/*
 #ldapadd -D cn=Manager,dc=arcore,dc=amadeus,dc=com -W -h localhost -f ~/Development/sites/arcore/ldap/main.ldif  
+#ldapsearch -D cn=Manager,dc=arcore,dc=amadeus,dc=com -W -h localhost -b dc=arcore,dc=amadeus,dc=com "objectclass=*"
 
 attributetype ( 1.3.6.1.4.1.42.2.27.39.1.1
 	NAME 'keyName'
