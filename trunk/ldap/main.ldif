@@ -1,21 +1,34 @@
+Enter LDAP Password: 
+# extended LDIF
+#
+# LDAPv3
+# base <dc=arcore,dc=amadeus,dc=com> with scope subtree
+# filter: objectclass=*
+# requesting: ALL
+#
+
+# arcore.amadeus.com
 dn: dc=arcore,dc=amadeus,dc=com
-objectclass: dcObject
-objectclass: organizationalUnit
+objectClass: dcObject
+objectClass: organizationalUnit
 dc: arcore
 ou: rootobject
 
+# mbo, arcore.amadeus.com
 dn: cn=mbo,dc=arcore,dc=amadeus,dc=com
 cn: mbo
 description: Mid and Back Office
 objectClass: propertyContainer
-childrenCount: 1
+childrenCount: 2
 
+# servers, mbo, arcore.amadeus.com
 dn: cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
 cn: servers
 description: Servers group
 objectClass: propertyContainer
-childrenCount: 2
+childrenCount: 3
 
+# location, servers, mbo, arcore.amadeus.com
 dn: cn=location,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
 cn: location
 description: Phisical server location
@@ -24,20 +37,23 @@ keyType: object1A keyType
 valueType: object1A valueType
 objectClass: propertyObject
 
+# web, servers, mbo, arcore.amadeus.com
 dn: cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
 cn: web
 description: WebServers group
 objectClass: propertyContainer
-childrenCount: 2
+childrenCount: 3
 
+# responsible, web, servers, mbo, arcore.amadeus.com
 dn: cn=responsible,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+objectClass: propertyObject
 cn: responsible
 description: Web server responsible
-keyValue: Labo
+keyValue: webmaster
 keyType: object1A keyType
 valueType: object1A valueType
-objectClass: propertyObject
 
+# tomcat, web, servers, mbo, arcore.amadeus.com
 dn: cn=tomcat,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
 cn: tomcat
 description: Tomcat group
@@ -45,6 +61,7 @@ objectClass: propertyContainer
 childrenCount: 3
 aliasingEntryName: cn=object2A,cn=container2,cn=mbo,dc=arcore,dc=amadeus,dc=com
 
+# http, tomcat, web, servers, mbo, arcore.amadeus.com
 dn: cn=http,cn=tomcat,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
 cn: http
 description: HTTP port
@@ -53,6 +70,7 @@ keyType: object1A keyType
 valueType: object1A valueType
 objectClass: propertyObject
 
+# https, tomcat, web, servers, mbo, arcore.amadeus.com
 dn: cn=https,cn=tomcat,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
 cn: https
 description: HTTPS port
@@ -61,12 +79,14 @@ keyType: object1A keyType
 valueType: object1A valueType
 objectClass: propertyObject
 
+# AGM123, tomcat, web, servers, mbo, arcore.amadeus.com
 dn: cn=AGM123,cn=tomcat,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
 cn: AGM123
 description: Tomcat settings corresponding to AGM 12.3
 objectClass: propertyContainer
 childrenCount: 2
 
+# http, AGM123, tomcat, web, servers, mbo, arcore.amadeus.com
 dn: cn=http,cn=AGM123,cn=tomcat,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
 cn: http
 description: HTTP port
@@ -75,6 +95,7 @@ keyType: object1A keyType
 valueType: object1A valueType
 objectClass: propertyObject
 
+# https, AGM123, tomcat, web, servers, mbo, arcore.amadeus.com
 dn: cn=https,cn=AGM123,cn=tomcat,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
 cn: https
 description: HTTPS port
@@ -83,16 +104,79 @@ keyType: object1A keyType
 valueType: object1A valueType
 objectClass: propertyObject
 
-dn: cn=container2,cn=mbo,dc=arcore,dc=amadeus,dc=com
-cn: container2
-description: container1 description
+# ftp, servers, mbo, arcore.amadeus.com
+dn: cn=ftp,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: ftp
+description: FTP servers
+objectClass: propertyContainer
+childrenCount: 3
+
+# responsible, ftp, servers, mbo, arcore.amadeus.com
+dn: cn=responsible,cn=ftp,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: responsible
+description: Person responsible for FTP servers
+keyValue: ftpadmin
+objectClass: propertyObject
+
+# vsftp, ftp, servers, mbo, arcore.amadeus.com
+dn: cn=vsftp,cn=ftp,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: vsftp
+description: Very Secure FTP
+objectClass: propertyContainer
+childrenCount: 2
+
+# wuftp, ftp, servers, mbo, arcore.amadeus.com
+dn: cn=wuftp,cn=ftp,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: wuftp
+description: Washington University FTP
 objectClass: propertyContainer
 childrenCount: 1
 
-dn: cn=object2A,cn=container2,cn=mbo,dc=arcore,dc=amadeus,dc=com
-cn: object2A
-objectClass: inheritingAlias
-objectClass: alias
-objectClass: extensibleObject
-aliasedObjectName: cn=tomcat,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
-inheritLevel : 3
+# command, vsftp, ftp, servers, mbo, arcore.amadeus.com
+dn: cn=command,cn=vsftp,cn=ftp,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: command
+description: FTP command channel
+keyValue: 21
+objectClass: propertyObject
+
+# container1, mbo, arcore.amadeus.com
+dn: cn=container1,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: container1
+description: container1 description
+objectClass: propertyContainer
+
+# command, wuftp, ftp, servers, mbo, arcore.amadeus.com
+dn: cn=command,cn=wuftp,cn=ftp,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: command
+description: FTP command channel
+keyValue: 21
+keyType: valueType
+objectClass: propertyObject
+
+# apache, web, servers, mbo, arcore.amadeus.com
+dn: cn=apache,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: apache
+description: Apache web server
+objectClass: propertyContainer
+childrenCount: 2
+
+# http, apache, web, servers, mbo, arcore.amadeus.com
+dn: cn=http,cn=apache,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: http
+description: HTTP port
+keyValue: 80
+objectClass: propertyObject
+
+# https, apache, web, servers, mbo, arcore.amadeus.com
+dn: cn=https,cn=apache,cn=web,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: https
+description: HTTP with SSL port
+keyValue: 443
+objectClass: propertyObject
+
+# data, vsftp, ftp, servers, mbo, arcore.amadeus.com
+dn: cn=data,cn=vsftp,cn=ftp,cn=servers,cn=mbo,dc=arcore,dc=amadeus,dc=com
+cn: data
+description: FTP Data Channel
+keyValue: 20
+objectClass: propertyObject
