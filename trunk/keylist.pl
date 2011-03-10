@@ -64,7 +64,10 @@ sub printInhTable {
 # in most functions we refer to this structure as the "inheritance table"
 ################################################################################
 
-
+################################################################################
+# generate an html view of the inheritcance tree. Normally this functions is
+# invoked when the user browse through the data
+################################################################################
 sub printInhTableToHTML {
 
     my ($inheritanceTable, $tableKey, $outerArrRef, $oneArray, $myListIter) = @_;
@@ -104,6 +107,11 @@ sub printInhTableToHTML {
     }
 }
 
+################################################################################
+# generate an java property file view of the inheritcance tree. 
+# Normally this functions is invoked when the user requests an extraction 
+# of the data
+################################################################################
 sub printInhTableToJPROP {
 
     my ($inheritanceTable, $tableKey, $outerArrRef, $oneArray, $myListIter) = @_;
@@ -122,16 +130,7 @@ sub printInhTableToJPROP {
                 }
             }
                         
-#             if ( param("showSettingsOverwrite") == 1) {
-#                 $myListIter = scalar(@$outerArrRef) - 1;
-#                 while ($myListIter > 0) {
-#                     print "#".$outerArrRef->[$myListIter]->[0]."=".$outerArrRef->[$myListIter]->[1]."\n";
-#                     $myListIter--;
-#                 };
-#             }
-
             print $outerArrRef->[scalar(@$outerArrRef) - 1]->[0]."=".$outerArrRef->[scalar(@$outerArrRef) - 1]->[1]."\n";
-#            print $outerArrRef->[0]->[0]."=".$outerArrRef->[0]->[1]."\n";
         }        
     }
 }
@@ -140,6 +139,13 @@ sub printInhTableToJPROP {
 
 
 ################################################################################
+# Appends a key(CN) and the corresponding [container, val, description] list
+# to the inheritance tree. In case the key already exists in the tree the value
+# list will be appended to the list of lists that is already in the tree,
+# otherwise a new key and list wikll be created.
+# arg1 - reference to the inheritcance tree
+# arg2 - key (CN)
+# arg3 - reference to the list korresponding to the specified key 
 ################################################################################
 sub appendArray {
 
@@ -201,10 +207,15 @@ sub addContainerKeysToInheritanceTable {
     foreach $entry ($myLevelKeys->entries) {
         $entryCN = $entry->get_value("cn");
         
-        if ( $entry->get_value("objectclass") eq "inheritingAlias" || 
-            $entry->get_value("objectclass") eq "alias") {
+#         if ( $entry->get_value("objectclass") eq "inheritingAlias" || 
+#             $entry->get_value("objectclass") eq "alias") {
+#             $entry = getLDAPEntry($entry->get_value("aliasedObjectName"));
+#         }
+
+        if ( $entry->get_value("objectclass") eq "alias") {
             $entry = getLDAPEntry($entry->get_value("aliasedObjectName"));
         }
+
 
         #add key only if it's an object or an alias to an object
         if ( $entry->get_value("objectclass") eq "propertyObject" ) {
@@ -231,7 +242,11 @@ sub gatherChildKeys {
     print CGILOG logtime()."gatherChildKeys(\"".$currentDN,"\",\"".$depth."\")\n";
 
     my $keyList = $ldap->search(base => $currentDN, scope => "one", 
-                                filter => "(|(objectclass=propertyContainer)(objectclass=alias)(objectclass=inheritingAlias))", 
+#                                 filter => "(|(objectclass=propertyContainer)
+#                                              (objectclass=alias)
+#                                              (objectclass=inheritingAlias))", 
+                                filter => "(|(objectclass=propertyContainer)
+                                             (objectclass=alias))",
                                 attrs => "*");
 
     my $entry;
@@ -247,22 +262,33 @@ sub gatherChildKeys {
             $followPath = 1;
 
             #in case we stumbled upon a link get the linked object
-            if ( $entry->get_value("objectclass") eq "inheritingAlias" || 
-                 $entry->get_value("objectclass") eq "alias" ) {
-                $entry = getLDAPEntry($entry->get_value("aliasedObjectName"));
+#            if ( $entry->get_value("objectclass") eq "inheritingAlias" || $entry->get_value("objectclass") eq "alias") {
+            if ( $entry->get_value("objectclass") eq "alias") {
+
+                 $entry = getLDAPEntry($entry->get_value("aliasedObjectName"));
+                 #if the link point to a conainer log the fact that it should be followed up
+                 print CGILOG logtime()."follow up needed for : ".$entry->dn()."\n";
+
+                 #stop follow up right now
+                 $followPath = 0;
             }
 
-            #if the link doesn't point to a container no follow-up needed
-            if ( $entry->get_value("objectclass") ne "propertyContainer" ) {
-                $followPath = 0;
-            }
-            
-            #in case we are still on with the link follow-up let's just do exactly that
+            #for now just let's drill furtur down
             if ($followPath == 1) {
-                print CGILOG logtime()."Follow link : ".$entry->dn()."\n"; 
-                gatherParentKeys($entry->dn(), param("upwardInheritance") - 1, $inheritanceTable);
                 gatherChildKeys($entry->dn(), $depth - 1, $inheritanceTable);
             }
+
+#             #if the link doesn't point to a container no follow-up needed
+#             if ( $entry->get_value("objectclass") ne "propertyContainer" ) {
+#                 $followPath = 0;
+#             }
+            
+#             #in case we are still on with the link follow-up let's just do exactly that
+#             if ($followPath == 1) {
+#                 print CGILOG logtime()."Follow link : ".$entry->dn()."\n"; 
+#                 gatherParentKeys($entry->dn(), param("upwardInheritance") - 1, $inheritanceTable);
+#                 gatherChildKeys($entry->dn(), $depth - 1, $inheritanceTable);
+#             }
         }
     }
 }
@@ -358,10 +384,35 @@ sub genInheritanceTable {
 }
 
 ################################################################################
+# merge inheritance trees
+# arg1 - reference to the comprising inheritance tree
+# arg2 - reference to the inheritance tree the will be merged into the resulting
+#        tree
+################################################################################
+sub mergeInheritanceTrees() {
+    my ($comprisingTreeRef, $mergingTreeRef) = @_;
+
+    my ($tableKey, $outerArrRef, $innerArrRef);
+
+    foreach $tableKey (keys %$mergingTreeRef) {
+        foreach $outerArrRef (@$mergingTreeRef{$tableKey}) {
+            foreach $innerArrRef (@$outerArrRef) {
+                appendArray($comprisingTreeRef, $tableKey, $innerArrRef);
+            }
+        }
+    }
+}
+
+################################################################################
 # main function
 ################################################################################
 if ( param("dereferenceLinks") eq "1" ) {
-    $keySearchFilter = "(|(objectclass=propertyObject)(objectclass=alias)(objectclass=inheritingAlias))";
+#     $keySearchFilter = "(|(objectclass=propertyObject)
+#                           (objectclass=alias)
+#                           (objectclass=inheritingAlias))";
+    $keySearchFilter = "(|(objectclass=propertyObject)
+                          (objectclass=alias))";
+
 } else {
     $keySearchFilter = "(objectclass=propertyObject)";
 }
@@ -372,7 +423,9 @@ if ( param("predicate") eq "export" ) {
         #print "Content-Type:application/x-download\r\n\r\n";
         print "Content-Disposition:attachment;filename=settings_".$myCurrTime.".properties\r\n\r\n";  
 
-        my $inheritanceTable = genInheritanceTable("prop", param("upwardInheritance") - 1, param("downwardInheritance"));
+        my $inheritanceTable = genInheritanceTable("prop", 
+                                                   param("upwardInheritance") - 1, 
+                                                   param("downwardInheritance"));
 
         printInhTableToJPROP($inheritanceTable);
     } elsif ( param("exportType") eq "html" ) { 
@@ -382,7 +435,9 @@ if ( param("predicate") eq "export" ) {
         print "<table border='1' width='100%'>";
         print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th></tr>";
 
-        my $inheritanceTable = genInheritanceTable("html", param("upwardInheritance") - 1, param("downwardInheritance"));
+        my $inheritanceTable = genInheritanceTable("html", 
+                                                   param("upwardInheritance") - 1, 
+                                                   param("downwardInheritance"));
         
         printInhTableToHTML($inheritanceTable);
 

@@ -5,9 +5,10 @@ open(CGILOG, ">> /tmp/cgi.log");
 
 $containerAttrs = ["cn","description"];
 $aliasAttrs = ["cn","aliasedObjectName","inheritLevel"];
-$propertyAttrs = ["cn","description","keyValue","keyType","valueType","aliasedObjectName","inheritLevel"];
+#$propertyAttrs = ["cn","description","keyValue","keyType","valueType","aliasedObjectName","inheritLevel"];
+$propertyAttrs = ["cn","description","keyValue","keyType","valueType"];
 $operationalAttrs = ['entryDN','creatorsName','createTimestamp','modifiersName','modifyTimestamp','childrenCount','aliasingEntryName'];
-my @allAttributes = ("objectClass", @$propertyAttrs, @$operationalAttrs);
+my @allAttributes = ("objectClass", @$propertyAttrs, @$aliasAttrs, @$operationalAttrs);
 
 $ldap = Net::LDAP->new ("localhost", port => 389, version => 3 );
 
@@ -133,8 +134,12 @@ sub generateClassTypeSelection {
         print " selected='true'";
     }
     print ">propertyObject</option>";
-    print "<option value='inheritingAlias'";
-    if ($preselectedValue eq "inheritingAlias") {
+#     print "<option value='inheritingAlias'";
+#     if ($preselectedValue eq "inheritingAlias") {
+#         print " selected='true'";
+#     }
+    print "<option value='alias'";
+    if ($preselectedValue eq "alias") {
         print " selected='true'";
     }
     print ">alias</option>";
@@ -145,9 +150,9 @@ sub generateCreateForm {
 
     my $ldapEntry = $_[0];
 
-    &generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 0, 0, "create");
+    generateInputForm($ldapEntry, $containerAttrs, "propertyContainer", 0, 0, "create");
     print "</form></table></div>";
-    &generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 0, 0, "create");
+    generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 0, 0, "create");
     print "</form></table></div>";
 };
 
@@ -164,8 +169,11 @@ sub generateEditForm {
         case "propertyObject" {
             generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 0, "update");
         }
-        case "inheritingAlias" {
-            generateInputForm($ldapEntry, $aliasAttrs, "inheritingAlias", 1, 0, "update");
+#         case "inheritingAlias" {
+#             generateInputForm($ldapEntry, $aliasAttrs, "inheritingAlias", 1, 0, "update");
+#         }
+        case "alias" {
+            generateInputForm($ldapEntry, $aliasAttrs, "alias", 1, 0, "update");
         }
         else {
             print "\n<h2>Unknown LDAP entry type:".$ldapEntry->get_value( "objectClass" )."</h2>";
@@ -189,8 +197,11 @@ sub generateViewForm {
         case "propertyObject" {
             generateInputForm($ldapEntry, $propertyAttrs, "propertyObject", 1, 1, "view");
         }
-        case "inheritingAlias" {
-            generateInputForm($ldapEntry, $aliasAttrs, "inheritingAlias", 1, 1, "view");
+#         case "inheritingAlias" {
+#             generateInputForm($ldapEntry, $aliasAttrs, "inheritingAlias", 1, 1, "view");
+#         }
+        case "alias" {
+            generateInputForm($ldapEntry, $aliasAttrs, "alias", 1, 1, "view");
         }
         else {
             print "\n<h2>Unknown LDAP entry type:".$ldapEntry->get_value( "objectClass" )."</h2>";
@@ -198,7 +209,7 @@ sub generateViewForm {
         }
     }
     
-    &generateInputLines($ldapEntry, $operationalAttrs, "operational", 1, 1);
+    generateInputLines($ldapEntry, $operationalAttrs, "operational", 1, 1);
     print "</form></table></div>";
 }
 
