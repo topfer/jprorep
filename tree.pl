@@ -34,7 +34,8 @@ if ( $msg->count(  ) > 0 ) {
             }
             print "<item id='".$entry->dn(  )."' class='container' state='".$entryState."'><content><name>".$entry->get_value("cn")."</name></content></item>";
             #print "<item id='".$entry->dn(  )."' class='container' state='closed'><content><name>".$entry->get_value("cn")."</name></content></item>";
-        } elsif ( $entry->get_value("objectClass") eq "alias" || $entry->get_value("objectClass") eq "inheritingAlias") {
+#        } elsif ( $entry->get_value("objectClass") eq "alias" || $entry->get_value("objectClass") eq "inheritingAlias") {
+        } elsif ( $entry->get_value("objectClass") eq "alias" ) {
             my $aliasedLDAPEntry = &getLDAPEntry($entry->get_value("aliasedObjectName"));
             if ( $aliasedLDAPEntry->get_value("objectClass") eq "propertyContainer" ) {
                 print "<item id='".$entry->dn(  )."' class='link' state='leaf'><content><name icon='icons/folder_link.png'>".$entry->get_value("cn")."</name></content></item>";

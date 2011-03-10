@@ -22,7 +22,10 @@ sub createListfromCGIParams {
         case "propertyObject" {
             $srcListRef = $propertyAttrs;
         }
-        case "inheritingAlias" {
+#         case "inheritingAlias" {
+#             $srcListRef = $aliasAttrs;
+#         }
+        case "alias" {
             $srcListRef = $aliasAttrs;
         }
     }
@@ -132,7 +135,7 @@ switch ( param("predicate") ) {
         $currentCN = substr(param("nodeDN"), 0, index(param("nodeDN"), ','));
         $actualDN = $currentCN.','.$containingDN;
         
-        push(@translationList, "objectclass", "inheritingAlias");
+#        push(@translationList, "objectclass", "inheritingAlias");
         push(@translationList, "objectclass", "alias");
         push(@translationList, "objectclass", "extensibleObject");
         push(@translationList, "aliasedObjectName", param("nodeDN"));
@@ -171,7 +174,7 @@ switch ( param("predicate") ) {
         $currentCN = substr(param("nodeDN"), 0, index(param("nodeDN"), ','));
         $actualDN = $currentCN.','.$containingDN;
         
-        $translationListRef = &createParamListByCopy(param("nodeDN"));    
+        $translationListRef = createParamListByCopy(param("nodeDN"));    
 
         push(@$translationListRef, "objectclass", "propertyObject");
 
@@ -197,7 +200,7 @@ switch ( param("predicate") ) {
         $currentCN = substr(param("nodeDN"), 0, index(param("nodeDN"), ','));
         $actualDN = $currentCN.','.$containingDN;
         
-        $translationListRef = &createParamListByCopy(param("nodeDN"));    
+        $translationListRef = createParamListByCopy(param("nodeDN"));    
 
         push(@$translationListRef, "objectclass", "propertyObject");
 
