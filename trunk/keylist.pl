@@ -23,26 +23,6 @@ my $nextNodeStart = 0;
 
 my $keySearchFilter;
 
-sub printArrOfArr {
-
-    my ($prefix, $arrOfArrRef, $oneArray) = @_;
-
-    foreach $oneArray (@$arrOfArrRef) {
-        print "$prefix :\t@$oneArray<br/>\n"
-    }    
-}
-
-sub printInhTable {
-
-    my ($tableRef, $tableKey, $outerArrRef, $innerArrRef) = @_;
-
-    foreach $tableKey (keys %$tableRef) {
-        foreach $outerArrRef (@$tableRef{$tableKey}) {
-            printArrOfArr($tableKey, $outerArrRef);
-        }
-    }
-}
-
 ################################################################################
 # all the following functions operate on a data structure that can be described
 # as a hash of arrays of arrays. See folowing example :
@@ -63,6 +43,54 @@ sub printInhTable {
 # vital for comprehending the following functions that operate on it.
 # in most functions we refer to this structure as the "inheritance table"
 ################################################################################
+
+################################################################################
+# Debug function.
+# Given a structure [ [ Array1 ], [Array2], [Array3] ] generates a human 
+# readable view
+# arg1 - prefix/name of the array of arrays (in common usege this is the
+#        name of the key that corresponds to this structure.
+# arg2 - reference to the complex structure
+################################################################################
+sub printArrOfArr {
+
+    my ($prefix, $arrOfArrRef) = @_;
+
+    my ($oneArrayRef,$returnString);
+
+    $returnString = "";
+
+    foreach $oneArrayRef (@$arrOfArrRef) {
+        $returnString = $returnString.sprintf("$prefix :\t@$oneArrayRef\n");
+    }
+
+    return $returnString;
+}
+
+
+################################################################################
+# Debug function.
+# Given a structure { key1 => [ [ Array1 ], [Array2], [Array3] ],
+#                     key2 => [ [ Array4 ], [Array5], [Array6] ] }
+# generates a human readable view
+# arg1 - reference to the table (tree)
+################################################################################
+sub printInhTable {
+
+    my ($tableRef) = @_;
+
+    my ($tableKey, $outerArrRef, $innerArrRef, $returnString);
+
+    $returnString = "";
+
+    foreach $tableKey (keys %$tableRef) {
+        foreach $outerArrRef (@$tableRef{$tableKey}) {
+            $returnString=$returnString.printArrOfArr($tableKey, $outerArrRef);
+        }
+    }
+
+    return $returnString;
+}
 
 ################################################################################
 # generate an html view of the inheritcance tree. Normally this functions is
@@ -151,7 +179,7 @@ sub appendArray {
 
     my ($tableRef, $thisKey, $arrayRef, $tempRef) = @_;
 
-    #print CGILOG logtime()." appendArray(\"tableRef\",\"".$thisKey."\",\"[@$arrayRef]\")\n";
+    #print CGILOG logtime()."appendArray(\"tableRef\",\"".$thisKey."\",\"[@$arrayRef]\")\n";
 
     if ( exists($$tableRef{$thisKey}) ) {
         $tempRef = @$tableRef{$thisKey};
@@ -196,6 +224,9 @@ sub addContainerKeysToInheritanceTable {
     
     my ($myLevelKeys, $containerPrefix, $entry, $entryCN, $prefixSeparator);
 
+    #print CGILOG logtime()."addContainerKeysToInheritanceTable(\"".$containerDN,"\",\""."tableRef"."\")\n";
+    #print CGILOG logtime()."\n".printInhTable($inheritanceTable)."\n";
+
     $myLevelKeys = getContainerLevelKeys($containerDN, "", "");
 
     $containerPrefix = $containerDN;
@@ -216,7 +247,6 @@ sub addContainerKeysToInheritanceTable {
             $entry = getLDAPEntry($entry->get_value("aliasedObjectName"));
         }
 
-
         #add key only if it's an object or an alias to an object
         if ( $entry->get_value("objectclass") eq "propertyObject" ) {
             appendArray($inheritanceTable, $entryCN, 
@@ -228,6 +258,9 @@ sub addContainerKeysToInheritanceTable {
 }
 
 ################################################################################
+# For each DN it creates a list of all the child containers or aliases
+# to conainers and then follows them up with a recursive call.
+# The key content of the current DN is also appended to the inheritance tree
 # arg1 - The DN that is the base object entry relative to which the search 
 #        is to be performed.
 # arg2 - current depth of search (during the recursive calls this depth will
@@ -239,7 +272,7 @@ sub gatherChildKeys {
     
     my ($currentDN, $depth, $inheritanceTable) = @_;
 
-    print CGILOG logtime()."gatherChildKeys(\"".$currentDN,"\",\"".$depth."\")\n";
+#    print CGILOG logtime()."gatherChildKeys(\"".$currentDN,"\",\"".$depth."\")\n";
 
     my $keyList = $ldap->search(base => $currentDN, scope => "one", 
 #                                 filter => "(|(objectclass=propertyContainer)
@@ -310,12 +343,12 @@ sub gatherChildKeys {
 #        inserted
 ################################################################################
 sub gatherParentKeys {
-    my ($currDNValue, $listType, $height, $inheritanceTable) = @_;
+    my ($currDNValue, $height, $inheritanceTable) = @_;
 
-    print CGILOG logtime()."gatherParentKeys(\"".$currDNValue."\",\"".$listType."\",\"".$height."\",\"".$inheritanceTable.")\n";
+#    print CGILOG logtime()."gatherParentKeys(\"".$currDNValue."\",\"".$height."\",\"".$inheritanceTable.")\n";
 
     if ( $height > 0 && $currDNValue ne $rootDN ) {
-        $inheritanceTable = gatherParentKeys(substr($currDNValue, index($currDNValue,",") + 1), "html", $height-1, {});
+        $inheritanceTable = gatherParentKeys(substr($currDNValue, index($currDNValue,",") + 1), $height-1, {});
     }
 
     addContainerKeysToInheritanceTable($currDNValue, $inheritanceTable);
@@ -336,7 +369,7 @@ sub gatherParentKeys {
 #        inserted
 ################################################################################
 sub disabled_gatherParentKeys {
-    my ($currDNValue, $listType, $upInherit, $inheritanceTable) = @_;
+    my ($currDNValue, $upInherit, $inheritanceTable) = @_;
 
     my ($tempCNDelimiterIndex, $containerPrefix);
 
@@ -360,14 +393,15 @@ sub disabled_gatherParentKeys {
 # upwards and downwards inharitance as needed 
 ################################################################################
 sub genInheritanceTable {
-    my ($listType, $upwardInheritance, $downwardInheritance) = @_;
+    my ($upwardInheritance, $downwardInheritance) = @_;
 
     my $inheritanceTable;
 
     #gather parent keys if required or just initialise the inheritance table
-    if ( param("upwardInheritance") > 0 ) {
+    #if ( param("upwardInheritance") > 0 ) {
+    if ( $upwardInheritance > 0 ) {
         $inheritanceTable = gatherParentKeys(substr($currentBase.",".$rootDN, index($currentBase.",".$rootDN,",") + 1), 
-                                             $listType, $upwardInheritance, {});
+                                             $upwardInheritance, {});
     } else {
         $inheritanceTable = {};
     }
@@ -423,8 +457,7 @@ if ( param("predicate") eq "export" ) {
         #print "Content-Type:application/x-download\r\n\r\n";
         print "Content-Disposition:attachment;filename=settings_".$myCurrTime.".properties\r\n\r\n";  
 
-        my $inheritanceTable = genInheritanceTable("prop", 
-                                                   param("upwardInheritance") - 1, 
+        my $inheritanceTable = genInheritanceTable(param("upwardInheritance") - 1, 
                                                    param("downwardInheritance"));
 
         printInhTableToJPROP($inheritanceTable);
@@ -435,8 +468,7 @@ if ( param("predicate") eq "export" ) {
         print "<table border='1' width='100%'>";
         print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th></tr>";
 
-        my $inheritanceTable = genInheritanceTable("html", 
-                                                   param("upwardInheritance") - 1, 
+        my $inheritanceTable = genInheritanceTable(param("upwardInheritance") - 1, 
                                                    param("downwardInheritance"));
         
         printInhTableToHTML($inheritanceTable);
