@@ -98,7 +98,8 @@ sub printInhTable {
 ################################################################################
 sub printInhTableToHTML {
 
-    my ($inheritanceTable, $tableKey, $outerArrRef, $oneArray, $myListIter) = @_;
+    my ($inheritanceTable, $ldapCNSeparator) = @_;
+    my ($tableKey, $outerArrRef, $oneArray, $myListIter, $lastCNIndex);
 
     foreach $tableKey (keys %$inheritanceTable) {
 
@@ -111,24 +112,30 @@ sub printInhTableToHTML {
             if ( param("showSettingsOverwrite") == 1) {
                 $myListIter = 0;
                 while ($myListIter < scalar(@$outerArrRef) - 1) {
-                    print "<strike>".$outerArrRef->[$myListIter]->[0]."</strike><br/>";
+                    $lastCNIndex = rindex($outerArrRef->[$myListIter]->[0], $ldapCNSeparator);
+                    print "<strike>".
+                          substr($outerArrRef->[$myListIter]->[0],0,$lastCNIndex)."<b>".
+                          substr($outerArrRef->[$myListIter]->[0],$lastCNIndex).
+                          "</b></strike><br/>";
                     $myListIter++;
                 }
             }
 
-            print $outerArrRef->[scalar(@$outerArrRef) - 1]->[0];
+            $lastCNIndex = rindex($outerArrRef->[scalar(@$outerArrRef) - 1]->[0], $ldapCNSeparator);
+            print substr($outerArrRef->[scalar(@$outerArrRef) - 1]->[0],0,$lastCNIndex)."<b>".
+                  substr($outerArrRef->[scalar(@$outerArrRef) - 1]->[0],$lastCNIndex)."</b>";
             
             print "</td><td>\n";
 
             if ( param("showSettingsOverwrite") == 1) {
                 $myListIter = 0;
                 while ($myListIter < scalar(@$outerArrRef) - 1) {
-                    print "<strike>".$outerArrRef->[$myListIter]->[1]."</strike><br/>";
+                    print "<strike><b>".$outerArrRef->[$myListIter]->[1]."</b></strike><br/>";                    
                     $myListIter++;
                 }
             }
 
-            print $outerArrRef->[scalar(@$outerArrRef) - 1]->[1];
+            print "<b>".$outerArrRef->[scalar(@$outerArrRef) - 1]->[1]."</b>";;
 
             print "</td></tr>";
         }        
@@ -222,7 +229,7 @@ sub getContainerLevelKeys {
 sub addContainerKeysToInheritanceTable {
     my ($containerDN, $inheritanceTable) =@_;
     
-    my ($myLevelKeys, $containerPrefix, $entry, $entryCN, $prefixSeparator);
+    my ($myLevelKeys, $containerPrefix, $entry, $entryCN, $prefixSeparator, $uniqSeparator);
 
     #print CGILOG logtime()."addContainerKeysToInheritanceTable(\"".$containerDN,"\",\""."tableRef"."\")\n";
     #print CGILOG logtime()."\n".printInhTable($inheritanceTable)."\n";
@@ -232,8 +239,11 @@ sub addContainerKeysToInheritanceTable {
     $containerPrefix = $containerDN;
     $prefixSeparator = param("prefixKeysSeparator");
 
-    #replace all string of ",cn=" or "cn=" with dots(".")
-    $containerPrefix =~ s/,*[[:alpha:]]+=/$prefixSeparator/g;
+    #just make sure to use a separator that is not likely to come up in CNs
+    $uniqSeparator = "1qwsdc_";
+
+    #replace all string of ",cn=" or "cn=" with the uniq separator
+    $containerPrefix =~ s/,*[[:alpha:]]+=/$uniqSeparator/g;
 
     foreach $entry ($myLevelKeys->entries) {
         $entryCN = $entry->get_value("cn");
@@ -250,7 +260,7 @@ sub addContainerKeysToInheritanceTable {
         #add key only if it's an object or an alias to an object
         if ( $entry->get_value("objectclass") eq "propertyObject" ) {
             appendArray($inheritanceTable, $entryCN, 
-                        [join($prefixSeparator, reverse split(/$prefixSeparator/, $containerPrefix)).$entryCN, 
+                        [join($prefixSeparator, reverse split(/$uniqSeparator/, $containerPrefix)).$entryCN, 
                               $entry->get_value("keyValue"), 
                               $entry->get_value("description")]);
         }
@@ -272,7 +282,7 @@ sub gatherChildKeys {
     
     my ($currentDN, $depth, $inheritanceTable) = @_;
 
-#    print CGILOG logtime()."gatherChildKeys(\"".$currentDN,"\",\"".$depth."\")\n";
+    print CGILOG logtime()."gatherChildKeys(\"".$currentDN,"\",\"".$depth."\")\n";
 
     my $keyList = $ldap->search(base => $currentDN, scope => "one", 
 #                                 filter => "(|(objectclass=propertyContainer)
@@ -299,8 +309,15 @@ sub gatherChildKeys {
             if ( $entry->get_value("objectclass") eq "alias") {
 
                  $entry = getLDAPEntry($entry->get_value("aliasedObjectName"));
-                 #if the link point to a conainer log the fact that it should be followed up
-                 print CGILOG logtime()."follow up needed for : ".$entry->dn()."\n";
+                 
+                 if ( $entry->get_value("objectclass") eq "propertyContainer" ) {
+                     #if the link points to a conainer log the fact that it should be followed up
+                     print CGILOG logtime()."follow up needed for : ".$entry->dn()."\n";
+                     mergeInheritanceTrees($inheritanceTable, 
+                                           genInheritanceTable($entry->dn(),
+                                                               param("upwardInheritance") - 1, 
+                                                               param("downwardInheritance")));
+                 }
 
                  #stop follow up right now
                  $followPath = 0;
@@ -393,24 +410,23 @@ sub disabled_gatherParentKeys {
 # upwards and downwards inharitance as needed 
 ################################################################################
 sub genInheritanceTable {
-    my ($upwardInheritance, $downwardInheritance) = @_;
+    my ($currentDN, $upwardInheritance, $downwardInheritance) = @_;
 
     my $inheritanceTable;
 
     #gather parent keys if required or just initialise the inheritance table
-    #if ( param("upwardInheritance") > 0 ) {
     if ( $upwardInheritance > 0 ) {
-        $inheritanceTable = gatherParentKeys(substr($currentBase.",".$rootDN, index($currentBase.",".$rootDN,",") + 1), 
+        $inheritanceTable = gatherParentKeys(substr($currentDN, index($currentDN,",") + 1), 
                                              $upwardInheritance, {});
     } else {
         $inheritanceTable = {};
     }
 
     #gather child keys (that includes the current container) if required or just add the current container
-    if ( param("downwardInheritance") > 0 ) {
-        gatherChildKeys($currentBase.",".$rootDN, $downwardInheritance, $inheritanceTable);
+    if ( $downwardInheritance > 0 ) {
+        gatherChildKeys($currentDN, $downwardInheritance, $inheritanceTable);
     } else {
-        addContainerKeysToInheritanceTable($currentBase.",".$rootDN, $inheritanceTable);
+        addContainerKeysToInheritanceTable($currentDN, $inheritanceTable);
     }
 
     return $inheritanceTable;
@@ -435,6 +451,8 @@ sub mergeInheritanceTrees() {
             }
         }
     }
+
+    return $comprisingTreeRef;
 }
 
 ################################################################################
@@ -457,7 +475,8 @@ if ( param("predicate") eq "export" ) {
         #print "Content-Type:application/x-download\r\n\r\n";
         print "Content-Disposition:attachment;filename=settings_".$myCurrTime.".properties\r\n\r\n";  
 
-        my $inheritanceTable = genInheritanceTable(param("upwardInheritance") - 1, 
+        my $inheritanceTable = genInheritanceTable($currentBase.",".$rootDN,
+                                                   param("upwardInheritance") - 1, 
                                                    param("downwardInheritance"));
 
         printInhTableToJPROP($inheritanceTable);
@@ -468,10 +487,11 @@ if ( param("predicate") eq "export" ) {
         print "<table border='1' width='100%'>";
         print "<tr><th width='150px' align='right'><b>Name</b></th><th><b>Value</b></th></tr>";
 
-        my $inheritanceTable = genInheritanceTable(param("upwardInheritance") - 1, 
+        my $inheritanceTable = genInheritanceTable($currentBase.",".$rootDN,
+                                                   param("upwardInheritance") - 1, 
                                                    param("downwardInheritance"));
-        
-        printInhTableToHTML($inheritanceTable);
+   
+        printInhTableToHTML($inheritanceTable, param("prefixKeysSeparator"));
 
         print "</table></body></html>\n";
     }
