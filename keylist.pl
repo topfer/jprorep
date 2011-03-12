@@ -99,45 +99,50 @@ sub printInhTable {
 sub printInhTableToHTML {
 
     my ($inheritanceTable, $ldapCNSeparator) = @_;
-    my ($tableKey, $outerArrRef, $oneArray, $myListIter, $lastCNIndex);
+    my ($tableKey, $outerArrRef, $oneArray, $myListIter, $lastCNIndex, $htmlString, $uniqRDNSeparator);
+
+    $uniqRDNSeparator =":";
 
     foreach $tableKey (keys %$inheritanceTable) {
 
         foreach $outerArrRef (@$inheritanceTable{$tableKey}) {
 
             #print CGILOG logtime()." $tableKey=".@$outerArrRef."\n";
-
-            print "\n<tr><td>\n";                
+            $htmlString = "\n<tr><td>\n";                
             
             if ( param("showSettingsOverwrite") == 1) {
                 $myListIter = 0;
                 while ($myListIter < scalar(@$outerArrRef) - 1) {
-                    $lastCNIndex = rindex($outerArrRef->[$myListIter]->[0], $ldapCNSeparator);
-                    print "<strike>".
+                    $lastCNIndex = rindex($outerArrRef->[$myListIter]->[0], $uniqRDNSeparator);
+                    $htmlString = $htmlString.sprintf("<strike>".
                           substr($outerArrRef->[$myListIter]->[0],0,$lastCNIndex)."<b>".
                           substr($outerArrRef->[$myListIter]->[0],$lastCNIndex).
-                          "</b></strike><br/>";
+                          "</b></strike><br/>");
                     $myListIter++;
                 }
             }
 
-            $lastCNIndex = rindex($outerArrRef->[scalar(@$outerArrRef) - 1]->[0], $ldapCNSeparator);
-            print substr($outerArrRef->[scalar(@$outerArrRef) - 1]->[0],0,$lastCNIndex)."<b>".
-                  substr($outerArrRef->[scalar(@$outerArrRef) - 1]->[0],$lastCNIndex)."</b>";
+            $lastCNIndex = rindex($outerArrRef->[scalar(@$outerArrRef) - 1]->[0], $uniqRDNSeparator);
+            $htmlString = $htmlString.sprintf(substr($outerArrRef->[scalar(@$outerArrRef) - 1]->[0],0,$lastCNIndex)."<b>".
+                  substr($outerArrRef->[scalar(@$outerArrRef) - 1]->[0],$lastCNIndex)."</b>");
             
-            print "</td><td>\n";
+            $htmlString = $htmlString.sprintf("</td><td>\n");
 
             if ( param("showSettingsOverwrite") == 1) {
                 $myListIter = 0;
                 while ($myListIter < scalar(@$outerArrRef) - 1) {
-                    print "<strike><b>".$outerArrRef->[$myListIter]->[1]."</b></strike><br/>";                    
+                    $htmlString = $htmlString.sprintf("<strike><b>".$outerArrRef->[$myListIter]->[1]."</b></strike><br/>");
                     $myListIter++;
                 }
             }
 
-            print "<b>".$outerArrRef->[scalar(@$outerArrRef) - 1]->[1]."</b>";;
+            $htmlString = $htmlString.sprintf("<b>".$outerArrRef->[scalar(@$outerArrRef) - 1]->[1]."</b>");
 
-            print "</td></tr>";
+            $htmlString = $htmlString.sprintf("</td></tr>");
+            
+            $htmlString =~ s/$uniqRDNSeparator/$ldapCNSeparator/g;
+
+            print $htmlString;
         }        
     }
 }
@@ -149,28 +154,35 @@ sub printInhTableToHTML {
 ################################################################################
 sub printInhTableToJPROP {
 
-    my ($inheritanceTable, $tableKey, $outerArrRef, $oneArray, $myListIter) = @_;
+    my ($inheritanceTable, $ldapCNSeparator) = @_;
+
+    my ($tableKey, $outerArrRef, $oneArray, $myListIter, $htmlString, $uniqRDNSeparator);
+    
+    $uniqRDNSeparator = ":";
 
     foreach $tableKey (keys %$inheritanceTable) {
 
         foreach $outerArrRef (@$inheritanceTable{$tableKey}) {
 
             #print CGILOG logtime()." $tableKey=".@$outerArrRef."\n";
+            $htmlString = "";
 
             if ( param("showSettingsOverwrite") == 1) {
                 $myListIter = 0;
                 while ($myListIter < scalar(@$outerArrRef) - 1) {
-                    print "#".$outerArrRef->[$myListIter]->[0]."=".$outerArrRef->[$myListIter]->[1]."\n";
+                    $htmlString = $htmlString.sprintf("#".$outerArrRef->[$myListIter]->[0]."=".$outerArrRef->[$myListIter]->[1]."\n");
                     $myListIter++;
                 }
             }
                         
-            print $outerArrRef->[scalar(@$outerArrRef) - 1]->[0]."=".$outerArrRef->[scalar(@$outerArrRef) - 1]->[1]."\n";
+            $htmlString = $htmlString.sprintf($outerArrRef->[scalar(@$outerArrRef) - 1]->[0]."=".$outerArrRef->[scalar(@$outerArrRef) - 1]->[1]."\n");
+
+            $htmlString =~ s/$uniqRDNSeparator/$ldapCNSeparator/g;
+
+            print $htmlString;
         }        
     }
 }
-
-
 
 
 ################################################################################
@@ -229,7 +241,7 @@ sub getContainerLevelKeys {
 sub addContainerKeysToInheritanceTable {
     my ($containerDN, $inheritanceTable) =@_;
     
-    my ($myLevelKeys, $containerPrefix, $entry, $entryCN, $prefixSeparator, $uniqSeparator);
+    my ($myLevelKeys, $containerPrefix, $entry, $entryCN, $prefixSeparator, $uniqRDNSeparator);
 
     #print CGILOG logtime()."addContainerKeysToInheritanceTable(\"".$containerDN,"\",\""."tableRef"."\")\n";
     #print CGILOG logtime()."\n".printInhTable($inheritanceTable)."\n";
@@ -237,13 +249,13 @@ sub addContainerKeysToInheritanceTable {
     $myLevelKeys = getContainerLevelKeys($containerDN, "", "");
 
     $containerPrefix = $containerDN;
-    $prefixSeparator = param("prefixKeysSeparator");
+    #$prefixSeparator = param("prefixKeysSeparator");
 
     #just make sure to use a separator that is not likely to come up in CNs
-    $uniqSeparator = "1qwsdc_";
+    $uniqRDNSeparator = ":";
 
     #replace all string of ",cn=" or "cn=" with the uniq separator
-    $containerPrefix =~ s/,*[[:alpha:]]+=/$uniqSeparator/g;
+    $containerPrefix =~ s/,*[[:alpha:]]+=/$uniqRDNSeparator/g;
 
     foreach $entry ($myLevelKeys->entries) {
         $entryCN = $entry->get_value("cn");
@@ -260,7 +272,7 @@ sub addContainerKeysToInheritanceTable {
         #add key only if it's an object or an alias to an object
         if ( $entry->get_value("objectclass") eq "propertyObject" ) {
             appendArray($inheritanceTable, $entryCN, 
-                        [join($prefixSeparator, reverse split(/$uniqSeparator/, $containerPrefix)).$entryCN, 
+                        [join($uniqRDNSeparator, reverse split(/$uniqRDNSeparator/, $containerPrefix)).$entryCN, 
                               $entry->get_value("keyValue"), 
                               $entry->get_value("description")]);
         }
@@ -479,7 +491,7 @@ if ( param("predicate") eq "export" ) {
                                                    param("upwardInheritance") - 1, 
                                                    param("downwardInheritance"));
 
-        printInhTableToJPROP($inheritanceTable);
+        printInhTableToJPROP($inheritanceTable, param("prefixKeysSeparator"));
     } elsif ( param("exportType") eq "html" ) { 
         #print CGILOG "exportType : html\n";
         print "Content-type: text/html\r\n\r\n";
