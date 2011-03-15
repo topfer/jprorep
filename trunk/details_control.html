@@ -10,7 +10,8 @@
         <input type="button" name="save" value="Save" onclick="top.commitLDAPEntryChange()"/>
       </div>        
       <div class="controlBar" id="keylist">
-        <input type="button" name="export" value="Export" onclick="top.exportRequest('prop')"/>
+        <input type="button" name="export" value="Export" onclick="top.keyListAction('keylist.pl', 'export', 'prop')"/>
+        <input type="button" name="saveSearch" value="Save search" onclick="var srcname=prompt('Search name');top.keyListAction('searchmgmt.pl', 'save', srcname);"/>
       </div>
     </form>
   </body>

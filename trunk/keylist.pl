@@ -467,6 +467,7 @@ sub mergeInheritanceTrees() {
     return $comprisingTreeRef;
 }
 
+
 ################################################################################
 # main function
 ################################################################################
@@ -508,4 +509,5 @@ if ( param("predicate") eq "export" ) {
         print "</table></body></html>\n";
     }
 }
+
 

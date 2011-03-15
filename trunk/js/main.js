@@ -300,16 +300,16 @@ function loadExportSettings(sourceForm, targetForm) {
 /*
  * Generate export request based on curent settings
  */
-function exportRequest(exportType) {
+function keyListAction(action, subAction, param) {
     var nodeForm = top.details.document.forms.nodeForm;
     var extractForm = top.details.document.forms.extractForm;
 
     extractForm.elements.tab.value = nodeForm.elements.tab.value = 'keylist';
-    extractForm.elements.predicate.value = nodeForm.elements.predicate.value = 'export';
-    extractForm.elements.exportType.value = exportType;
-    extractForm.action = nodeForm.action = 'keylist.pl';
+    extractForm.elements.predicate.value = nodeForm.elements.predicate.value = subAction;
+    extractForm.elements.exportType.value = param;
+    extractForm.action = nodeForm.action = action;
 
-    extractForm.elements.nodeDN.value = nodeForm.elements.nodeDN.value
+    extractForm.elements.nodeDN.value = nodeForm.elements.nodeDN.value;
 
     extractForm.submit();
 }

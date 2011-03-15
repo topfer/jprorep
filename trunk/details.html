@@ -33,7 +33,7 @@
       <tr>
         <td>
           <a class="tab" action="details" href="about:blank" onclick="top.callTab(getAttribute('action'));return false;">View</a>
-          <a class="tab" action="keylist" href="about:blank" target="detailsMainFrame" onclick="top.activateTab(getAttribute('action'));top.exportRequest('html');return false;">Key list</a>
+          <a class="tab" action="keylist" href="about:blank" target="detailsMainFrame" onclick="top.activateTab(getAttribute('action'));top.keyListAction('keylist.pl', 'export', 'html');return false;">Key list</a>
           <a class="tab" action="export" href="exp_settings.html" target="detailsMainFrame" onclick="top.activateTab(getAttribute('action'));">Export settings</a>
           <iframe class="tabContent" name="detailsMainFrame"></iframe>
         </td>
@@ -42,20 +42,6 @@
       <tr>
         <td id="footer" style="height:75px">
           <iframe class="tabContent" name="detailsControlForm" src="details_control.html"></iframe>
-          <!--
-          <div class="tabMain">
-            <form name="detailsControlForm">
-              <div class="controlBar" id="details">
-                Edit
-                <input type="checkbox" name="edit" value="Edit" onclick="top.editFunc(checked)"/>&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="button" name="save" value="Save" onclick="top.commitLDAPEntryChange()"/>
-              </div>
-              <div class="controlBar" id="keylist">
-                <input type="button" name="export" value="Export" onclick="top.exportRequest('prop')"/>
-              </div>
-            </form>
-          </div>
-          -->
         </td>
       </tr> 
     </table>
