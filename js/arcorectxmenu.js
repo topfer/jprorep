@@ -241,7 +241,7 @@
                     var ndForm = top.details.document.forms.nodeForm;
                     ndForm.elements.nodeDN.value=$(NODE).attr("id");
                     if ( ndForm.elements.tab.value == "keylist" ) {
-                        top.exportRequest('html');
+                        top.keyListAction('keylist.pl', 'export', 'html');
                     } else {
                         ndForm.action = ndForm.elements.tab.value + ".pl"; 
                         ndForm.elements.predicate.value = "view";                                  
