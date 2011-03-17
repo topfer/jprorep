@@ -483,7 +483,7 @@ if ( param("dereferenceLinks") eq "1" ) {
 }
 
 if ( param("predicate") eq "export" ) {
-    if ( param("exportType") eq "prop" ) {
+    if ( param("actionPrameter") eq "prop" ) {
         my $myCurrTime = &printCurrTime("_");
         #print "Content-Type:application/x-download\r\n\r\n";
         print "Content-Disposition:attachment;filename=settings_".$myCurrTime.".properties\r\n\r\n";  
@@ -493,8 +493,8 @@ if ( param("predicate") eq "export" ) {
                                                    param("downwardInheritance"));
 
         printInhTableToJPROP($inheritanceTable, param("prefixKeysSeparator"));
-    } elsif ( param("exportType") eq "html" ) { 
-        #print CGILOG "exportType : html\n";
+    } elsif ( param("actionPrameter") eq "html" ) { 
+        #print CGILOG "actionPrameter : html\n";
         print "Content-type: text/html\r\n\r\n";
         print "<html><body>\n";
         print "<table border='1' width='100%'>";

@@ -306,7 +306,7 @@ function keyListAction(action, subAction, param) {
 
     extractForm.elements.tab.value = nodeForm.elements.tab.value = 'keylist';
     extractForm.elements.predicate.value = nodeForm.elements.predicate.value = subAction;
-    extractForm.elements.exportType.value = param;
+    extractForm.elements.actionPrameter.value = param;
     extractForm.action = nodeForm.action = action;
 
     extractForm.elements.nodeDN.value = nodeForm.elements.nodeDN.value;
