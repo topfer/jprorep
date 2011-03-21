@@ -18,8 +18,8 @@ sub listSearches() {
 
     while (my $ref = $sth->fetchrow_hashref()) {
         #print CGILOG logtime()."Found a row: id = ".$ref->{"id"}."name = ".$ref->{"srcname"}."\n";
-        print "<tr><td>".$ref->{"id"}.
-               "</td><td>".$ref->{"srcname"}.
+        print "<tr><td><a href=searchmgmt.pl?&predicate=load&srcId=".$ref->{"id"}.">".$ref->{"id"}."</a>".
+              "<td><a href=searchmgmt.pl?&predicate=load&srcName=".$ref->{"srcname"}.">".$ref->{"srcname"}."</a>".
                "</td><td>".$ref->{"created"}.
                "</td></tr>\n";
     }
@@ -32,9 +32,11 @@ sub listSearches() {
 ################################################################################
 
 # Connect to the database.
+print CGILOG logtime()."Attempt to open DB connection\n";
 $dbh = DBI->connect("DBI:mysql:database=arcoremgmt;host=192.168.56.101;port=3306",
                        "arcore_user", "",
                        {'RaiseError' => 1});
+print CGILOG logtime()."DB connection open\n";
 
 print CGILOG logtime()."Predicate : ".param("predicate")."\n";
 
@@ -51,9 +53,10 @@ switch ( param("predicate") ) {
     case "save" {
         
         $testStr = "INSERT INTO searches \
-                                (srcname, settingsinheritance, upward_inheritance, downward_inheritance, prefix_keys_separator) \
+                                (srcname, dn, settingsinheritance, upward_inheritance, downward_inheritance, prefix_keys_separator) \
                                 VALUES (".
                                 "'".param("actionPrameter")."',".
+                                "'".param("nodeDN")."',".
                                 param("enableSettingsInheritance").",".
                                 param("upwardInheritance").",".
                                 param("downwardInheritance").",".
