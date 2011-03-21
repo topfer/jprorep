@@ -6,7 +6,8 @@ USE arcoremgmt;
 CREATE TABLE searches (
        id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
        srcname VARCHAR(32) NOT NULL,
-       created TIMESTAMP DEFAULT NOW(),  
+       created TIMESTAMP DEFAULT NOW(),
+       dn VARCHAR(256) NOT NULL,
        settingsinheritance BOOL,
        upward_inheritance INT(2) NOT NULL,
        downward_inheritance INT(2) NOT NULL,

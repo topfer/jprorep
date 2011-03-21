@@ -11,7 +11,7 @@
       </div>        
       <div class="controlBar" id="keylist">
         <input type="button" name="export" value="Export" onclick="top.keyListAction('keylist.pl', 'export', 'prop')"/>
-        <input type="button" name="saveSearch" value="Save search" onclick="var srcname=prompt('Search name');top.keyListAction('searchmgmt.pl', 'save', srcname);"/>
+        <input type="button" name="saveSearch" value="Save search" onclick="var srcname=prompt('Search name');top.keyListAction('searchmgmt.pl', 'save', srcname);top.activateTab('searchmgmt');"/>
       </div>
     </form>
   </body>
