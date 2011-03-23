@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
+
+use DBI;
 use Net::LDAP;
 use CGI qw(:standard escapeHTML);
 
@@ -16,10 +18,6 @@ my $depth = 0;
 if ( ! defined $currentBase || $currentBase eq "" || $currentBase eq "0" ) {
     $currentBase = $rootDN;
 }
-
-$currentBase = substr($currentBase,0,rindex($currentBase, $rootDN) - 1);
-my $counter = 10;
-my $nextNodeStart = 0;
 
 my $keySearchFilter;
 
@@ -424,6 +422,8 @@ sub disabled_gatherParentKeys {
 sub genInheritanceTable {
     my ($currentDN, $upwardInheritance, $downwardInheritance) = @_;
 
+    print CGILOG logtime()."genInheritanceTable(\"".$currentDN."\",\"".$upwardInheritance."\",\"".$downwardInheritance.")\n";
+
     my $inheritanceTable;
 
     #gather parent keys if required or just initialise the inheritance table
@@ -471,6 +471,56 @@ sub mergeInheritanceTrees() {
 ################################################################################
 # main function
 ################################################################################
+
+my $oneKey;
+
+if ( param("predicate") eq "load" ) {
+
+    my ($dbh, $sth, $ref);
+
+    $dbh = DBI->connect("DBI:mysql:database=arcoremgmt;host=192.168.56.101;port=3306",
+                        "arcore_user", "",
+                        {'RaiseError' => 1});
+
+    
+    # Prepare query.
+    if ( param("srcId") ne "" ) {
+        $sth = $dbh->prepare("SELECT * FROM searches WHERE id=".param("srcId"));
+    } elsif ( param("srcName") ne "" ) {
+        $sth = $dbh->prepare("SELECT * FROM searches WHERE srcname='".param("srcName")."'");
+    }
+
+    # Retieve record
+    $sth->execute();
+
+    $ref = $sth->fetchrow_hashref();
+
+    param("predicate", "export");
+    param("actionPrameter", "html");
+
+    print CGILOG logtime()."dbg_001 ".$currentBase."\n";
+    $currentBase = $ref->{"nodedn"};
+    print CGILOG logtime()."dbg_002 ".$currentBase."\n";
+    param("enableSettingsInheritance", $ref->{"enable_settings_inheritance"});
+    param("upwardInheritance", $ref->{"upward_inheritance"});
+    param("downwardInheritance", $ref->{"downward_inheritance"});
+    param("enableSettingsOverwrite", $ref->{"enable_settings_overwrite"});
+    param("showSettingsOverwrite", $ref->{"show_settings_overwrite"});
+    param("includeContainerComment", $ref->{"include_container_comment"});
+    param("includePropertyComment", $ref->{"include_property_comment"});
+    param("dereferenceLinks", $ref->{"dereference_links"});
+    param("prefixKeys", $ref->{"prefix_keys"});
+    param("prefixKeysSeparator", $ref->{"prefix_keys_separator"});
+
+    $sth->finish();
+
+    # Disconnect from the database.
+    $dbh->disconnect();
+
+}
+
+$currentBase = substr($currentBase,0,rindex($currentBase, $rootDN) - 1);
+
 if ( param("dereferenceLinks") eq "1" ) {
 #     $keySearchFilter = "(|(objectclass=propertyObject)
 #                           (objectclass=alias)
