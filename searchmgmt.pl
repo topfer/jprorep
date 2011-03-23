@@ -18,8 +18,8 @@ sub listSearches() {
 
     while (my $ref = $sth->fetchrow_hashref()) {
         #print CGILOG logtime()."Found a row: id = ".$ref->{"id"}."name = ".$ref->{"srcname"}."\n";
-        print "<tr><td><a href=searchmgmt.pl?&predicate=load&srcId=".$ref->{"id"}.">".$ref->{"id"}."</a>".
-              "<td><a href=searchmgmt.pl?&predicate=load&srcName=".$ref->{"srcname"}.">".$ref->{"srcname"}."</a>".
+        print "<tr><td><a href=keylist.pl?predicate=load&srcId=".$ref->{"id"}.">".$ref->{"id"}."</a>".
+              "<td><a href=keylist.pl?predicate=load&srcName=".$ref->{"srcname"}.">".$ref->{"srcname"}."</a>".
                "</td><td>".$ref->{"created"}.
                "</td></tr>\n";
     }
@@ -53,13 +53,30 @@ switch ( param("predicate") ) {
     case "save" {
         
         $testStr = "INSERT INTO searches \
-                                (srcname, dn, settingsinheritance, upward_inheritance, downward_inheritance, prefix_keys_separator) \
+                                (srcname, \
+                                 nodedn, \
+                                 enable_settings_inheritance, \
+                                 upward_inheritance, \
+                                 downward_inheritance, \
+                                 enable_settings_overwrite, \ 
+                                 show_settings_overwrite, \ 
+                                 include_container_comment, \
+                                 include_property_comment, \ 
+                                 dereference_links, \
+                                 prefix_keys, \
+                                 prefix_keys_separator) \
                                 VALUES (".
                                 "'".param("actionPrameter")."',".
                                 "'".param("nodeDN")."',".
                                 param("enableSettingsInheritance").",".
                                 param("upwardInheritance").",".
                                 param("downwardInheritance").",".
+                                param("enableSettingsOverwrite").",".
+                                param("showSettingsOverwrite").",".
+                                param("includeContainerComment").",".
+                                param("includePropertyComment").",".
+                                param("dereferenceLinks").",".
+                                param("prefixKeys").",".
                                 "'".param("prefixKeysSeparator")."')";
 
         #print CGILOG logtime()."SQL : ".$testStr."\n";
