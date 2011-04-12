@@ -1,0 +1,22 @@
+#mysql startup
+/home/tfazekas/appl/mysql
+./bin/mysqld_safe --defaults-file=/home/tfazekas/appl/mysql/my.cnf &
+
+#mysql schema creation
+mysql -uroot -hlocalhost -P53306 < searches.sql
+
+#LDAP schema insert (if applicable)
+sudo cp -i ~/Development/sites/arcore/ldap/properties.schema /opt/ldap/etc/openldap/schema/
+
+#LDAP DB reset
+sudo rm -f /opt/ldap/var/openldap-data/*
+
+#LDAP DB dump
+ldapsearch -D cn=Manager,dc=arcore,dc=amadeus,dc=com -W -h localhost -b dc=arcore,dc=amadeus,dc=com "objectclass=*"
+
+#LDAP startup
+/home/tfazekas/appl/openldap-2.4.23/libexec
+./slapd -h ldap://localhost:5389
+
+#LDAP initial test structure creation
+ldapadd -D cn=Manager,dc=arcore,dc=amadeus,dc=com -W -h localhost -p5389 -f ~/development/arcore/ldap/main.ldif
